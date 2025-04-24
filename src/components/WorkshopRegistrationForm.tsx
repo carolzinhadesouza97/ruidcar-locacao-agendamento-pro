@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -26,9 +25,9 @@ const workshopSchema = z.object({
   state: z.string().length(2, 'Estado deve ter 2 caracteres'),
   zipCode: z.string().min(8, 'CEP inválido'),
   phone: z.string().min(10, 'Telefone inválido'),
-  pricePopular: z.string().transform(Number),
-  priceMedium: z.string().transform(Number),
-  priceImported: z.string().transform(Number),
+  pricePopular: z.string().transform((val) => Number(val)),
+  priceMedium: z.string().transform((val) => Number(val)),
+  priceImported: z.string().transform((val) => Number(val)),
 });
 
 type WorkshopFormData = z.infer<typeof workshopSchema>;
@@ -110,18 +109,17 @@ const WorkshopRegistrationForm = () => {
       // Vincular a conta à oficina
       const { error: linkError } = await supabase
         .from('workshop_accounts')
-        .insert([
-          {
-            id: authData.user?.id,
-            email: data.email,
-            workshop_id: workshopData.id,
-          },
-        ]);
+        .insert({
+          id: authData.user?.id,
+          email: data.email,
+          password: data.password,
+          workshop_id: workshopData.id,
+        });
 
       if (linkError) throw linkError;
 
       toast.success('Oficina cadastrada com sucesso! Aguarde a aprovação.');
-      navigate('/auth');
+      navigate('/');
     } catch (error: any) {
       console.error('Erro ao cadastrar oficina:', error);
       toast.error(error.message || 'Erro ao cadastrar oficina');

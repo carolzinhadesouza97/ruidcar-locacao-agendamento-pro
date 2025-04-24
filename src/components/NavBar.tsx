@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
