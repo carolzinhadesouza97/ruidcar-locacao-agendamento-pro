@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,11 +31,27 @@ const workshopSchema = z.object({
   priceImported: z.string().transform((val) => Number(val.replace(',', '.'))).refine((val) => !isNaN(val), { message: 'Preço inválido' }),
 });
 
+// Define the input type for the form (before transformation)
+type WorkshopFormInput = {
+  name: string;
+  email: string;
+  password: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  pricePopular: string;
+  priceMedium: string;
+  priceImported: string;
+};
+
+// Define the output type after Zod transformation
 type WorkshopFormData = z.infer<typeof workshopSchema>;
 
 const WorkshopRegistrationForm = () => {
   const navigate = useNavigate();
-  const form = useForm<WorkshopFormData>({
+  const form = useForm<WorkshopFormInput>({
     resolver: zodResolver(workshopSchema),
     defaultValues: {
       name: '',
@@ -247,7 +264,7 @@ const WorkshopRegistrationForm = () => {
               <FormItem>
                 <FormLabel>Preço Popular</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="text" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -261,7 +278,7 @@ const WorkshopRegistrationForm = () => {
               <FormItem>
                 <FormLabel>Preço Médio</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="text" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -275,7 +292,7 @@ const WorkshopRegistrationForm = () => {
               <FormItem>
                 <FormLabel>Preço Importado</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="text" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
