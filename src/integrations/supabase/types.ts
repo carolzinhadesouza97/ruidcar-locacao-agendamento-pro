@@ -9,7 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      workshop_accounts: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          password: string
+          workshop_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          password: string
+          workshop_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          password?: string
+          workshop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_workshop_id"
+            columns: ["workshop_id"]
+            isOneToOne: true
+            referencedRelation: "workshops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workshops: {
+        Row: {
+          address: string
+          approved: boolean | null
+          city: string
+          created_at: string | null
+          email: string
+          id: string
+          lat: number
+          lng: number
+          name: string
+          open_hours: Json
+          phone: string
+          price_imported: number
+          price_medium: number
+          price_popular: number
+          rating: number | null
+          state: string
+          updated_at: string | null
+          zip_code: string
+        }
+        Insert: {
+          address: string
+          approved?: boolean | null
+          city: string
+          created_at?: string | null
+          email: string
+          id?: string
+          lat: number
+          lng: number
+          name: string
+          open_hours: Json
+          phone: string
+          price_imported: number
+          price_medium: number
+          price_popular: number
+          rating?: number | null
+          state: string
+          updated_at?: string | null
+          zip_code: string
+        }
+        Update: {
+          address?: string
+          approved?: boolean | null
+          city?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          lat?: number
+          lng?: number
+          name?: string
+          open_hours?: Json
+          phone?: string
+          price_imported?: number
+          price_medium?: number
+          price_popular?: number
+          rating?: number | null
+          state?: string
+          updated_at?: string | null
+          zip_code?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
