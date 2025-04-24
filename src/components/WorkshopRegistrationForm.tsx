@@ -80,27 +80,25 @@ const WorkshopRegistrationForm = () => {
       // Inserir dados da oficina
       const { data: workshopData, error: workshopError } = await supabase
         .from('workshops')
-        .insert([
-          {
-            name: data.name,
-            email: data.email,
-            address: data.address,
-            city: data.city,
-            state: data.state,
-            zip_code: data.zipCode,
-            lat: location.lat(),
-            lng: location.lng(),
-            phone: data.phone,
-            price_popular: data.pricePopular,
-            price_medium: data.priceMedium,
-            price_imported: data.priceImported,
-            open_hours: {
-              weekdays: '08:00 - 18:00',
-              saturday: '08:00 - 12:00',
-              sunday: 'Fechado',
-            },
+        .insert({
+          name: data.name,
+          email: data.email,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          zip_code: data.zipCode,
+          lat: location.lat(),
+          lng: location.lng(),
+          phone: data.phone,
+          price_popular: data.pricePopular,
+          price_medium: data.priceMedium,
+          price_imported: data.priceImported,
+          open_hours: {
+            weekdays: '08:00 - 18:00',
+            saturday: '08:00 - 12:00',
+            sunday: 'Fechado',
           },
-        ])
+        })
         .select()
         .single();
 
