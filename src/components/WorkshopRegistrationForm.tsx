@@ -25,9 +25,9 @@ const workshopSchema = z.object({
   state: z.string().length(2, 'Estado deve ter 2 caracteres'),
   zipCode: z.string().min(8, 'CEP inválido'),
   phone: z.string().min(10, 'Telefone inválido'),
-  pricePopular: z.string().transform((val) => Number(val)),
-  priceMedium: z.string().transform((val) => Number(val)),
-  priceImported: z.string().transform((val) => Number(val)),
+  pricePopular: z.string().transform((val) => Number(val.replace(',', '.'))).refine((val) => !isNaN(val), { message: 'Preço inválido' }),
+  priceMedium: z.string().transform((val) => Number(val.replace(',', '.'))).refine((val) => !isNaN(val), { message: 'Preço inválido' }),
+  priceImported: z.string().transform((val) => Number(val.replace(',', '.'))).refine((val) => !isNaN(val), { message: 'Preço inválido' }),
 });
 
 type WorkshopFormData = z.infer<typeof workshopSchema>;
@@ -53,7 +53,6 @@ const WorkshopRegistrationForm = () => {
 
   const onSubmit = async (data: WorkshopFormData) => {
     try {
-      // Primeiro, criar a conta da oficina
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -61,7 +60,6 @@ const WorkshopRegistrationForm = () => {
 
       if (authError) throw authError;
 
-      // Geocodificar o endereço para obter lat/lng
       const address = `${data.address}, ${data.city}, ${data.state}`;
       const geocoder = new google.maps.Geocoder();
       
@@ -77,7 +75,6 @@ const WorkshopRegistrationForm = () => {
 
       const location = geocodeResult as google.maps.LatLng;
 
-      // Inserir dados da oficina
       const { data: workshopData, error: workshopError } = await supabase
         .from('workshops')
         .insert({
@@ -104,7 +101,6 @@ const WorkshopRegistrationForm = () => {
 
       if (workshopError) throw workshopError;
 
-      // Vincular a conta à oficina
       const { error: linkError } = await supabase
         .from('workshop_accounts')
         .insert({
