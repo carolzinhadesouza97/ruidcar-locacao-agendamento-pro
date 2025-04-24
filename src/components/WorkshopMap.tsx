@@ -4,14 +4,15 @@ import { Workshop, workshopsData, calculateDistances } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { MapPin, Navigation } from 'lucide-react';
+import { Loader } from '@googlemaps/js-api-loader';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
 }
 
+// Definindo tipos para Google Maps
 declare global {
   interface Window {
-    google: any;
     initMap: () => void;
   }
 }
@@ -27,17 +28,16 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({ onSelectWorkshop }) => {
   // Load Google Maps API
   useEffect(() => {
     if (!window.google && !googleMapScript.current) {
-      googleMapScript.current = document.createElement('script');
-      googleMapScript.current.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac&libraries=geometry&callback=initMap`;
-      googleMapScript.current.async = true;
-      googleMapScript.current.defer = true;
-
       window.initMap = () => {
         if (mapRef.current) {
           initializeMap();
         }
       };
 
+      googleMapScript.current = document.createElement('script');
+      googleMapScript.current.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac&libraries=geometry&callback=initMap`;
+      googleMapScript.current.async = true;
+      googleMapScript.current.defer = true;
       document.head.appendChild(googleMapScript.current);
     } else if (window.google && mapRef.current && !map) {
       initializeMap();
