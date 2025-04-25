@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { LatLngLiteral } from '@react-google-maps/api';
+import { LatLngLiteral } from '@types/google.maps';
 import { OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
 
 export interface OficinaWithDistance extends OficinaRUIDCAR {
