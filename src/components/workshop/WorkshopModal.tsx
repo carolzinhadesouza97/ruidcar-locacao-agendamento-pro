@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { WorkshopForm } from './WorkshopForm';
-import { useGoogleMaps } from '@/hooks/useGoogleMaps';
+import { useMapboxServices } from '@/hooks/useMapboxServices';
 import { useRef, useState } from 'react';
 import { Workshop } from '@/types/workshop';
 
@@ -25,7 +25,7 @@ export function WorkshopModal({
 }: WorkshopModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
-  const { geocodeAddress } = useGoogleMaps(mapRef);
+  const { geocodeAddress } = useMapboxServices();
 
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
@@ -114,7 +114,7 @@ export function WorkshopModal({
           onCancel={onClose}
         />
 
-        {/* Hidden element to initialize Google Maps */}
+        {/* Hidden element to initialize maps if needed */}
         <div ref={mapRef} className="hidden" />
       </DialogContent>
     </Dialog>

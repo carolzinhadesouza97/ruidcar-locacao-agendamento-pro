@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { WorkshopFormInput } from '@/schemas/workshopSchema';
-import { useGoogleMaps } from './useGoogleMaps';
+import { useMapboxServices } from '@/hooks/useMapboxServices';
 
 export const useWorkshopRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Usamos um ref vazio apenas para inicializar o hook
   const mapRef = useRef<HTMLDivElement>(null);
-  const { isLoaded, geocodeAddress } = useGoogleMaps(mapRef);
+  const { isLoaded, geocodeAddress } = useMapboxServices();
 
   const handleRegistration = async (data: WorkshopFormInput) => {
     try {
@@ -27,7 +27,7 @@ export const useWorkshopRegistration = () => {
       const formattedAddress = `${data.address}, ${data.city}, ${data.state}, ${data.zipCode}, Brasil`;
       console.log("Tentando geocodificar endereço:", formattedAddress);
       
-      let location: google.maps.LatLng;
+      let location: { lat: () => number; lng: () => number };
       try {
         // Fazemos três tentativas de geocodificação
         toast.info('Validando localização...');
