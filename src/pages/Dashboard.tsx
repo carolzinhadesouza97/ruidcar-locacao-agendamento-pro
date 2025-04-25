@@ -157,9 +157,7 @@ const Dashboard = () => {
   
   const handleWorkshopSaved = async () => {
     try {
-      // Define a specific type for raw data to avoid excessive type instantiation
-      type RawWorkshopData = Record<string, any>;
-      
+      // Use a simple any type to avoid excessive type instantiation
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
@@ -167,10 +165,10 @@ const Dashboard = () => {
         
       if (error) throw error;
       
-      // Use the simple generic type
-      const rawData = (data || []) as RawWorkshopData[];
+      // Explicitly use any[] to prevent deep type instantiation
+      const rawData: any[] = data || [];
       
-      // Map to our Workshop interface
+      // Map to our Workshop interface with explicit types
       const typedWorkshops: Workshop[] = rawData.map(item => ({
         id: item.id,
         name: item.name,
