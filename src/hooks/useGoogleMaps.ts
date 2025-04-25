@@ -7,13 +7,11 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
   const [placesService, setPlacesService] = useState<google.maps.places.AutocompleteService | null>(null);
   const googleMapScript = useRef<HTMLScriptElement | null>(null);
 
-  // Verifica se a API do Google Maps já está carregada
   const checkIfGoogleMapsLoaded = useCallback(() => {
     return window.google && window.google.maps;
   }, []);
 
   useEffect(() => {
-    // Se a API já estiver carregada
     if (checkIfGoogleMapsLoaded()) {
       setIsLoaded(true);
       
@@ -27,13 +25,10 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
       return;
     }
 
-    // Se o script não estiver carregado, carregue-o
     if (!googleMapScript.current) {
-      // Define a função de callback global
       const callbackName = 'googleMapsInitCallback_' + Math.random().toString(36).substr(2, 9);
       
-      // Usar window em vez de globalThis
-      window[callbackName as keyof typeof window] = function() {
+      (window as any)[callbackName] = function() {
         setIsLoaded(true);
         
         if (window.google.maps.places) {
@@ -44,15 +39,13 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
           initializeMap();
         }
         
-        // Limpar a função global após o uso
-        delete window[callbackName as keyof typeof window];
+        delete (window as any)[callbackName];
       };
 
-      // Adicione um manipulador de erro ao script
       const handleScriptError = () => {
         toast.error("Não foi possível carregar o Google Maps. Verifique sua conexão.");
         console.error("Falha ao carregar a API do Google Maps");
-        delete window[callbackName as keyof typeof window];
+        delete (window as any)[callbackName];
       };
 
       googleMapScript.current = document.createElement('script');
@@ -64,10 +57,9 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
     }
 
     return () => {
-      // Limpe o callback se existir
       const callbackName = 'googleMapsInitCallback_' + Math.random().toString(36).substr(2, 9);
-      if (window[callbackName as keyof typeof window]) {
-        delete window[callbackName as keyof typeof window];
+      if ((window as any)[callbackName]) {
+        delete (window as any)[callbackName];
       }
       
       if (googleMapScript.current && document.head.contains(googleMapScript.current)) {
@@ -103,7 +95,6 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
     }
   };
 
-  // Função para geocodificar um endereço com retry e melhor tratamento de erros
   const geocodeAddress = async (address: string): Promise<google.maps.LatLng> => {
     return new Promise((resolve, reject) => {
       if (!isLoaded || !window.google || !window.google.maps) {
@@ -113,33 +104,28 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
 
       const geocoder = new google.maps.Geocoder();
       
-      // Adiciona componente de região ao Brasil para melhorar precisão
       const geocoderRequest: google.maps.GeocoderRequest = {
         address,
         region: 'BR',
         componentRestrictions: { country: 'BR' }
       };
       
-      // Função para tentar geocodificar com retry
       const attemptGeocode = (attempts = 0) => {
         geocoder.geocode(geocoderRequest, (results, status) => {
           console.log("Geocode status:", status);
           
           if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-            // Log de sucesso com detalhes para debugging
             console.log("Geocode bem-sucedido:", results[0].formatted_address);
             resolve(results[0].geometry.location);
           } else {
             let errorMessage = 'Falha ao geocodificar endereço';
             
-            // Mapear códigos de status para mensagens mais amigáveis
             switch (status) {
               case google.maps.GeocoderStatus.ZERO_RESULTS:
                 errorMessage = 'Nenhum resultado encontrado para este endereço. Tente ser mais específico.';
                 break;
               case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
                 if (attempts < 3) {
-                  // Retry com delay exponencial
                   const delay = Math.pow(2, attempts) * 1000;
                   console.log(`Limite excedido, nova tentativa em ${delay}ms...`);
                   setTimeout(() => attemptGeocode(attempts + 1), delay);
@@ -155,7 +141,6 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
                 break;
               case google.maps.GeocoderStatus.UNKNOWN_ERROR:
                 if (attempts < 3) {
-                  // Retry para erros temporários
                   setTimeout(() => attemptGeocode(attempts + 1), 1000);
                   return;
                 }
@@ -169,12 +154,10 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
         });
       };
       
-      // Primeira tentativa
       attemptGeocode();
     });
   };
 
-  // Função para obter sugestões de endereço
   const getAddressSuggestions = async (input: string): Promise<google.maps.places.AutocompletePrediction[]> => {
     return new Promise((resolve, reject) => {
       if (!placesService) {
@@ -203,7 +186,6 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
     });
   };
 
-  // Função para obter detalhes de um lugar
   const getPlaceDetails = async (placeId: string): Promise<google.maps.places.PlaceResult> => {
     return new Promise((resolve, reject) => {
       if (!isLoaded || !window.google || !window.google.maps) {
@@ -211,7 +193,6 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
         return;
       }
 
-      // Usamos um mapDiv para evitar erros de DOM
       const mapDiv = document.createElement('div');
       
       const placesService = new google.maps.places.PlacesService(mapDiv);
