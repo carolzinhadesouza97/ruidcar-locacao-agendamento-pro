@@ -85,14 +85,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <MapContainer
-        style={{ width: '100%', height: '100%' }}
         className="z-0"
-        center={center}
+        style={{ width: '100%', height: '100%' }}
         zoom={5}
+        center={center}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
         <MapUpdater center={center} zoom={userLocation ? 12 : 5} />
