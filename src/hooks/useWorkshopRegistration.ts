@@ -1,17 +1,27 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { WorkshopFormInput } from '@/schemas/workshopSchema';
+import { useGoogleMaps } from './useGoogleMaps';
 
 export const useWorkshopRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Usamos um ref vazio apenas para inicializar o hook
+  const mapRef = useRef<HTMLDivElement>(null);
+  const { isLoaded, geocodeAddress } = useGoogleMaps(mapRef);
 
   const handleRegistration = async (data: WorkshopFormInput) => {
     try {
       setIsSubmitting(true);
+      
+      if (!isLoaded) {
+        toast.error("O serviço de geocodificação não está disponível. Tente novamente em alguns instantes.");
+        setIsSubmitting(false);
+        return;
+      }
       
       // Primeiro, tente geocodificar o endereço antes de criar o usuário
       const formattedAddress = `${data.address}, ${data.city}, ${data.state}, ${data.zipCode}, Brasil`;
@@ -85,44 +95,6 @@ export const useWorkshopRegistration = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Função auxiliar para geocodificar endereços com melhor tratamento de erros
-  const geocodeAddress = (address: string): Promise<google.maps.LatLng> => {
-    return new Promise((resolve, reject) => {
-      if (!window.google || !window.google.maps) {
-        reject(new Error('Google Maps API não está carregada'));
-        return;
-      }
-
-      const geocoder = new google.maps.Geocoder();
-      
-      geocoder.geocode({ address }, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-          resolve(results[0].geometry.location);
-        } else {
-          let errorMessage = 'Falha ao geocodificar endereço';
-          
-          // Mapear códigos de status para mensagens mais amigáveis
-          switch (status) {
-            case google.maps.GeocoderStatus.ZERO_RESULTS:
-              errorMessage = 'Nenhum resultado encontrado para este endereço';
-              break;
-            case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
-              errorMessage = 'Limite de consultas à API do Google Maps excedido';
-              break;
-            case google.maps.GeocoderStatus.REQUEST_DENIED:
-              errorMessage = 'Requisição negada pelo serviço de geocodificação';
-              break;
-            case google.maps.GeocoderStatus.INVALID_REQUEST:
-              errorMessage = 'Requisição inválida de geocodificação';
-              break;
-          }
-          
-          reject(new Error(errorMessage));
-        }
-      });
-    });
   };
 
   return { handleRegistration, isSubmitting };

@@ -1,18 +1,16 @@
 
 import React from 'react';
 import {
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
+  FormControl,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { WorkshopFormInput } from '@/schemas/workshopSchema';
-import { HelpCircle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AddressAutocomplete } from './AddressAutocomplete';
 
 interface AddressFieldsProps {
   form: UseFormReturn<WorkshopFormInput>;
@@ -21,34 +19,7 @@ interface AddressFieldsProps {
 export const AddressFields: React.FC<AddressFieldsProps> = ({ form }) => {
   return (
     <>
-      <FormField
-        control={form.control}
-        name="address"
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex items-center gap-2">
-              <FormLabel>Endereço</FormLabel>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">Digite o endereço completo com número para melhor precisão</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <FormControl>
-              <Input {...field} placeholder="Ex: Av. Paulista, 1000" />
-            </FormControl>
-            <FormDescription>
-              O endereço deve ser completo para localização no mapa
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <AddressAutocomplete form={form} />
 
       <div className="grid grid-cols-2 gap-4">
         <FormField
