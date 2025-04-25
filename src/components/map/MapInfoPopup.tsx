@@ -33,7 +33,7 @@ const MapInfoPopup: React.FC<MapInfoPopupProps> = ({ oficina, onClose }) => {
           <p className="text-sm text-gray-700">{oficina.telefone || 'Telefone não disponível'}</p>
         </div>
         <Badge variant="outline" className="mt-2 bg-brand-orange/10 text-brand-orange border-brand-orange">
-          {oficina.distance.toFixed(2)} km de distância
+          {oficina.distance.toFixed(1)} km de distância
         </Badge>
       </div>
     </Popup>
