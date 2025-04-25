@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Workshop, WorkshopDTO } from '@/types/workshop';
 import { convertDTOToWorkshop } from '@/utils/workshopConverters';
 import { toast } from 'sonner';
-import { PostgrestResponse } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
 
 export const useWorkshops = (userId: string) => {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -12,14 +12,14 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      const result: PostgrestResponse<WorkshopDTO> = await supabase
-        .from<WorkshopDTO>('workshops')
+      const { data, error } = await supabase
+        .from('workshops')
         .select('*')
         .eq('owner_id', userId);
       
-      if (result.error) throw result.error;
+      if (error) throw error;
       
-      const workshopsData = result.data || [];
+      const workshopsData = (data as unknown as WorkshopDTO[]) ?? [];
       const typedWorkshops = workshopsData.map(convertDTOToWorkshop);
       
       setWorkshops(typedWorkshops);
