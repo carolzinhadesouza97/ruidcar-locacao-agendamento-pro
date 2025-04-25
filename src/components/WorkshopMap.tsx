@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
@@ -15,8 +14,7 @@ interface WorkshopMapProps {
   onSchedule: () => void;
 }
 
-// Use token de exemplo do Mapbox que permite carregamento básico do mapa
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGVtby1sb3ZhYmxlIiwiYSI6ImNsc3M5NzJrNTBkN3Yya3BucXVydDNmOXEifQ.OT-HRohbOTNc6iPf7hI9WA';
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzUzOTE1NGMyaW9iY25xeW8xcXoifQ.gOOrD0UKK0cPdoMkUbvvdQ';
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
@@ -35,7 +33,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   } = useMapbox();
 
   useEffect(() => {
-    // Garantir que o mapa seja renderizado corretamente
     const timer = setTimeout(() => {
       setViewport(prev => ({...prev}));
       setMapLoaded(true);
@@ -47,7 +44,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   const handleMarkerClick = (oficina: OficinaWithDistance) => {
     setSelectedOficina(oficina);
     
-    // Update viewport to center on the selected oficina
     setViewport({
       latitude: oficina.lat,
       longitude: oficina.lng,
@@ -68,14 +64,12 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         </Button>
       </div>
       
-      {/* Verificar se o mapa já foi carregado antes de renderizar */}
       <Map
         {...viewport}
         style={{ width: '100%', height: '100%' }}
         mapStyle="mapbox://styles/mapbox/streets-v11"
         mapboxAccessToken={MAPBOX_TOKEN}
         onMove={evt => setViewport(evt.viewState)}
-        onLoad={() => setMapLoaded(true)}
         attributionControl={true}
       >
         <NavigationControl position="top-left" />
