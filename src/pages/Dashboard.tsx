@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,22 @@ import { PlusCircle, Edit, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkshopModal } from '@/components/workshop/WorkshopModal';
 import { Json } from '@/integrations/supabase/types';
+
+const convertOpenHours = (hours: Json): Record<string, string> => {
+  if (typeof hours === 'string') {
+    return JSON.parse(hours);
+  }
+  if (Array.isArray(hours)) {
+    return Object.fromEntries(hours as [string, string][]);
+  }
+  if (typeof hours === 'object' && hours !== null) {
+    return Object.entries(hours).reduce((acc, [key, value]) => ({
+      ...acc,
+      [key]: String(value)
+    }), {} as Record<string, string>);
+  }
+  return {};
+};
 
 interface Workshop {
   id: string;
@@ -19,7 +34,7 @@ interface Workshop {
   price_popular?: number;
   price_medium?: number;
   price_imported?: number;
-  open_hours?: { [key: string]: string };
+  open_hours: Record<string, string>;
   rating?: number;
   approved?: boolean;
   created_at?: string;
@@ -51,10 +66,10 @@ const Dashboard = () => {
           if (error) throw error;
           
           // Convert Supabase JSON data to the expected Workshop type
-          const typedWorkshops: Workshop[] = data?.map(item => ({
-            ...item,
-            open_hours: typeof item.open_hours === 'object' ? item.open_hours : {}
-          })) || [];
+          const typedWorkshops: Workshop[] = (data || []).map(workshop => ({
+            ...workshop,
+            open_hours: convertOpenHours(workshop.open_hours)
+          }));
           
           setWorkshops(typedWorkshops);
         }
@@ -108,10 +123,10 @@ const Dashboard = () => {
       if (error) throw error;
       
       // Convert Supabase JSON data to the expected Workshop type
-      const typedWorkshops: Workshop[] = data?.map(item => ({
-        ...item,
-        open_hours: typeof item.open_hours === 'object' ? item.open_hours : {}
-      })) || [];
+      const typedWorkshops: Workshop[] = (data || []).map(workshop => ({
+        ...workshop,
+        open_hours: convertOpenHours(workshop.open_hours)
+      }));
       
       setWorkshops(typedWorkshops);
       setIsModalOpen(false);
