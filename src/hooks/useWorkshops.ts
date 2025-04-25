@@ -11,18 +11,20 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Using type assertion to define the return type without deep inference
       const { data, error } = await supabase
-        .from('workshops')
-        .select('*')
+        .from<any>('workshops')
+        .select(`
+          id, name, address, city, state, zip_code,
+          phone, email, lat, lng, open_hours,
+          price_popular, price_medium, price_imported,
+          approved, created_at, website
+        `)
         .eq('owner_id', userId);
       
       if (error) throw error;
       
-      // Explicitly handle the data as a simple array without complex typing
-      const workshopsData = Array.isArray(data) ? data : [];
-      const typedWorkshops = workshopsData.map(item => convertDTOToWorkshop(item as WorkshopDTO));
-        
+      const raw = data as WorkshopDTO[];
+      const typedWorkshops = raw.map(convertDTOToWorkshop);
       setWorkshops(typedWorkshops);
     } catch (error: any) {
       console.error('Erro ao carregar dados:', error);
