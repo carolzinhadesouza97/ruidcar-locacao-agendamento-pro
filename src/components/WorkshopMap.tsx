@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
 import { oficinasRUIDCAR } from '@/data/oficinasRUIDCAR';
 import { useMapbox, OficinaWithDistance } from '@/hooks/map/useMapbox';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -85,14 +86,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <MapContainer
-        className="z-0"
         style={{ width: '100%', height: '100%' }}
-        center={defaultCenter}
+        className="z-0"
         zoom={5}
+        center={defaultCenter}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
         <MapUpdater center={center} zoom={userLocation ? 12 : 5} />
