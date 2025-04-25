@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Workshop, WorkshopDTO } from '@/types/workshop';
@@ -11,20 +10,16 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Completely bypass TypeScript's complex type inference
-      const result = await supabase
+      // Avoid TypeScript's type inference completely by using any
+      const { data, error } = await supabase
         .from('workshops')
         .select('*')
-        .eq('owner_id', userId);
+        .eq('owner_id', userId) as any;
       
-      // Cast the result to a simple structure after the query is complete
-      const data = result.data as WorkshopDTO[] | null;
-      const error = result.error;
-        
       if (error) throw error;
       
       // Process the data with our converter
-      const rawData = (data ?? []);
+      const rawData = (data ?? []) as WorkshopDTO[];
       const typedWorkshops = rawData.map(convertDTOToWorkshop);
       
       setWorkshops(typedWorkshops);
