@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,11 @@ import { toast } from 'sonner';
 import { WorkshopModal } from '@/components/workshop/WorkshopModal';
 import { Json } from '@/integrations/supabase/types';
 
-const convertOpenHours = (hours: Json): Record<string, string> => {
+// Separate type for OpenHours to simplify the Workshop interface
+type OpenHours = Record<string, string>;
+
+// Helper function to convert Json to OpenHours
+const convertOpenHours = (hours: Json): OpenHours => {
   if (typeof hours === 'string') {
     return JSON.parse(hours);
   }
@@ -17,12 +22,13 @@ const convertOpenHours = (hours: Json): Record<string, string> => {
     return Object.entries(hours).reduce((acc, [key, value]) => ({
       ...acc,
       [key]: String(value)
-    }), {} as Record<string, string>);
+    }), {} as OpenHours);
   }
   return {};
 };
 
-interface Workshop {
+// Base Workshop interface with common properties
+interface WorkshopBase {
   id: string;
   name: string;
   address: string;
@@ -34,13 +40,17 @@ interface Workshop {
   price_popular?: number;
   price_medium?: number;
   price_imported?: number;
-  open_hours: Record<string, string>;
   rating?: number;
   approved?: boolean;
   created_at?: string;
   email?: string;
   lat?: number;
   lng?: number;
+}
+
+// Extended Workshop interface with OpenHours
+interface Workshop extends WorkshopBase {
+  open_hours: OpenHours;
 }
 
 const Dashboard = () => {
@@ -65,10 +75,26 @@ const Dashboard = () => {
             
           if (error) throw error;
           
-          // Convert Supabase JSON data to the expected Workshop type
-          const typedWorkshops: Workshop[] = (data || []).map(workshop => ({
-            ...workshop,
-            open_hours: convertOpenHours(workshop.open_hours)
+          // Explicitly map the raw data to our Workshop interface with simplified typing
+          const typedWorkshops: Workshop[] = (data || []).map(item => ({
+            id: item.id,
+            name: item.name,
+            address: item.address,
+            city: item.city,
+            state: item.state,
+            zip_code: item.zip_code,
+            phone: item.phone,
+            website: item.website,
+            price_popular: item.price_popular,
+            price_medium: item.price_medium,
+            price_imported: item.price_imported,
+            rating: item.rating,
+            approved: item.approved,
+            created_at: item.created_at,
+            email: item.email,
+            lat: item.lat,
+            lng: item.lng,
+            open_hours: convertOpenHours(item.open_hours)
           }));
           
           setWorkshops(typedWorkshops);
@@ -122,10 +148,26 @@ const Dashboard = () => {
         
       if (error) throw error;
       
-      // Convert Supabase JSON data to the expected Workshop type
-      const typedWorkshops: Workshop[] = (data || []).map(workshop => ({
-        ...workshop,
-        open_hours: convertOpenHours(workshop.open_hours)
+      // Explicitly map the raw data to our Workshop interface with simplified typing
+      const typedWorkshops: Workshop[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        address: item.address,
+        city: item.city,
+        state: item.state,
+        zip_code: item.zip_code,
+        phone: item.phone,
+        website: item.website,
+        price_popular: item.price_popular,
+        price_medium: item.price_medium,
+        price_imported: item.price_imported,
+        rating: item.rating,
+        approved: item.approved,
+        created_at: item.created_at,
+        email: item.email,
+        lat: item.lat,
+        lng: item.lng,
+        open_hours: convertOpenHours(item.open_hours)
       }));
       
       setWorkshops(typedWorkshops);
