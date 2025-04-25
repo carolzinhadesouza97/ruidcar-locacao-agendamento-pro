@@ -11,14 +11,15 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Use type assertion with unknown as an intermediate step to break the deep inference
-      const response = await supabase
+      // Completely bypass TypeScript's complex type inference
+      const result = await supabase
         .from('workshops')
         .select('*')
-        .eq('owner_id', userId) as unknown;
+        .eq('owner_id', userId);
       
-      // Now cast to a simpler type structure
-      const { data, error } = response as { data: WorkshopDTO[] | null, error: any };
+      // Cast the result to a simple structure after the query is complete
+      const data = result.data as WorkshopDTO[] | null;
+      const error = result.error;
         
       if (error) throw error;
       
