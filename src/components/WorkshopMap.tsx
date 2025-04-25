@@ -6,15 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
 import { toast } from 'sonner';
 import { useWorkshopLocator } from '@/hooks/useWorkshopLocator';
+import { workshopsData } from '@/data/workshops';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
-  workshops: Workshop[];
+  workshops?: Workshop[];
 }
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
-  workshops
+  workshops = workshopsData // Use default value from data/workshops.ts
 }) => {
   const {
     userLocation,
@@ -111,20 +112,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
                   nearestWorkshops.includes(workshop) ? 40 : 32
                 ),
               }}
-            >
-              <InfoWindow>
-                <div className="p-2">
-                  <h3 className="font-semibold text-lg">{workshop.name}</h3>
-                  <p>{workshop.address}</p>
-                  <p>{workshop.city}, {workshop.state}</p>
-                  {workshop.distance && (
-                    <p className="text-sm text-green-600">
-                      {workshop.distance.toFixed(1)} km de distância
-                    </p>
-                  )}
-                </div>
-              </InfoWindow>
-            </Marker>
+            />
           ))}
         </GoogleMap>
       </div>

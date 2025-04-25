@@ -115,6 +115,7 @@ const Index = () => {
           <div className="lg:col-span-2 h-[500px] lg:h-auto relative rounded-xl overflow-hidden shadow-md">
             <WorkshopMap
               onSelectWorkshop={handleSelectWorkshop}
+              workshops={workshopsData}
             />
             
             {/* Mobile trigger for the panel */}

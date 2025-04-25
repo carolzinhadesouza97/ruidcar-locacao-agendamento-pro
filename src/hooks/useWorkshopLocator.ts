@@ -1,6 +1,8 @@
 
 import { useState, useRef } from 'react';
 import { Workshop } from '@/types/workshop';
+import { Workshop as DataWorkshop } from '@/data/workshops';
+import { calculateHaversineDistance } from '@/utils/distance';
 
 interface Location {
   lat: number;
@@ -9,26 +11,15 @@ interface Location {
 
 export const useWorkshopLocator = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
-  const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
+  const [nearestWorkshops, setNearestWorkshops] = useState<DataWorkshop[]>([]);
   const [isLocating, setIsLocating] = useState(false);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371;
-    const toRad = (value: number) => (value * Math.PI) / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a = 
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-    return 2 * R * Math.asin(Math.sqrt(a));
-  };
-
-  const findNearestWorkshops = (workshops: Workshop[], location: Location): Workshop[] => {
+  const findNearestWorkshops = (workshops: DataWorkshop[], location: Location): DataWorkshop[] => {
     return workshops
       .map(workshop => ({
         ...workshop,
-        distance: calculateDistance(
+        distance: calculateHaversineDistance(
           location.lat,
           location.lng,
           workshop.lat,
@@ -39,7 +30,11 @@ export const useWorkshopLocator = () => {
       .slice(0, 5);
   };
 
-  const locateWorkshops = (workshops: Workshop[]) => {
+  const locateWorkshops = (workshops: DataWorkshop[]) => {
+    if (!workshops || workshops.length === 0) {
+      return;
+    }
+    
     setIsLocating(true);
     
     navigator.geolocation.getCurrentPosition(
