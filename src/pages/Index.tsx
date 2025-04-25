@@ -116,6 +116,7 @@ const Index = () => {
             <WorkshopMap
               onSelectWorkshop={handleSelectWorkshop}
               workshops={workshopsData}
+              onSchedule={handleGoToSchedule}
             />
             
             {/* Mobile trigger for the panel */}
