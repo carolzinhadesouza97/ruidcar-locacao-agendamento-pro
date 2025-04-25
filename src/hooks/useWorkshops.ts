@@ -11,9 +11,9 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Remove the generic type parameter and use a simpler approach
+      // Cast to any to avoid TypeScript deep instantiation error
       const { data, error } = await supabase
-        .from('workshops')
+        .from('workshops') as any
         .select(`
           id, name, address, city, state, zip_code,
           phone, email, lat, lng, open_hours,
@@ -24,10 +24,10 @@ export const useWorkshops = (userId: string) => {
       
       if (error) throw error;
       
-      // Cast to unknown first, then to WorkshopDTO[] to avoid type errors
-      const workshopsData = (data as unknown) as WorkshopDTO[];
+      // Safely handle the response data
+      const workshopsData = data as any[];
       const typedWorkshops = Array.isArray(workshopsData) 
-        ? workshopsData.map(convertDTOToWorkshop)
+        ? workshopsData.map(item => convertDTOToWorkshop(item as WorkshopDTO))
         : [];
         
       setWorkshops(typedWorkshops);
