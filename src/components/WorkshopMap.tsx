@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+
+import React, { useState, useCallback } from 'react';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
 import { toast } from 'sonner';
-import { useWorkshopLocator } from '@/hooks/useWorkshopLocator';
-import { workshopsData } from '@/data/workshops';
-import WorkshopDetails from './WorkshopDetails';
+import { oficinasRUIDCAR, OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
+import { calculateHaversineDistance } from '@/utils/distance';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
-  workshops?: Workshop[];
+  workshops: Workshop[];
   onSchedule: () => void;
 }
 
@@ -39,49 +39,64 @@ const mapOptions = {
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
-  workshops = workshopsData,
-  onSchedule
+  onSchedule 
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  
-  const {
-    userLocation,
-    nearestWorkshops,
-    isLocating,
-    locateWorkshops,
-    selectedWorkshop,
-    selectWorkshop,
-    clearSelectedWorkshop
-  } = useWorkshopLocator();
+  const [selectedOficina, setSelectedOficina] = useState<OficinaRUIDCAR | null>(null);
+  const [nearestOficinas, setNearestOficinas] = useState<(OficinaRUIDCAR & { distance?: number })[]>([]);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac',
-    libraries: ['places', 'geometry']
-  });
+  const handleLocateOficinas = useCallback(() => {
+    setIsLocating(true);
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: userLat, longitude: userLng } = position.coords;
+        setUserLocation({ lat: userLat, lng: userLng });
 
-  const handleMarkerClick = (workshop: Workshop) => {
-    selectWorkshop(workshop);
-    onSelectWorkshop(workshop);
-  };
+        const oficinasWithDistance = oficinasRUIDCAR.map(oficina => ({
+          ...oficina,
+          distance: calculateHaversineDistance(userLat, userLng, oficina.lat, oficina.lng)
+        }));
 
-  if (loadError) {
-    return <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-lg">
-      Erro ao carregar o Google Maps. Verifique sua conexão.
-    </div>;
-  }
+        const nearest = oficinasWithDistance
+          .sort((a, b) => (a.distance || 0) - (b.distance || 0))
+          .slice(0, 5);
 
-  if (!isLoaded) {
-    return <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-lg">
-      Carregando o mapa...
-    </div>;
-  }
+        setNearestOficinas(nearest);
+
+        if (map) {
+          const bounds = new google.maps.LatLngBounds();
+          bounds.extend(new google.maps.LatLng(userLat, userLng));
+          
+          nearest.forEach(oficina => {
+            bounds.extend(new google.maps.LatLng(oficina.lat, oficina.lng));
+          });
+          
+          map.fitBounds(bounds);
+          
+          const listener = google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+            if (map.getZoom() > 12) map.setZoom(12);
+          });
+        }
+
+        setIsLocating(false);
+        toast.success('Oficinas próximas encontradas!');
+      },
+      (error) => {
+        console.error('Erro ao obter localização:', error);
+        toast.error('Não foi possível obter sua localização');
+        setIsLocating(false);
+      }
+    );
+  }, [map]);
 
   return (
-    <div className="h-full w-full flex flex-col relative">
+    <div className="relative w-full h-full">
       <div className="absolute top-4 right-4 z-10">
         <Button 
-          onClick={() => locateWorkshops(workshops, map)}
+          onClick={handleLocateOficinas}
           className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
           disabled={isLocating}
         >
@@ -90,51 +105,65 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         </Button>
       </div>
 
-      {selectedWorkshop && (
-        <div className="absolute bottom-4 left-4 right-4 z-10 bg-white rounded-lg shadow-lg max-w-2xl mx-auto">
-          <WorkshopDetails 
-            workshop={selectedWorkshop}
-            onBack={clearSelectedWorkshop}
-            onSchedule={onSchedule}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={defaultCenter}
+        zoom={5}
+        onLoad={setMap}
+        options={mapOptions}
+      >
+        {userLocation && (
+          <Marker
+            position={userLocation}
+            icon={{
+              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+              scaledSize: new google.maps.Size(40, 40),
+            }}
+            title="Sua localização"
           />
-        </div>
-      )}
+        )}
 
-      <div className="h-full w-full rounded-lg shadow-md">
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={defaultCenter}
-          zoom={5}
-          onLoad={setMap}
-          options={mapOptions}
-        >
-          {userLocation && (
-            <Marker
-              position={userLocation}
-              icon={{
-                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-                scaledSize: new google.maps.Size(40, 40),
-              }}
-            />
-          )}
+        {(nearestOficinas.length > 0 ? nearestOficinas : oficinasRUIDCAR).map((oficina) => (
+          <Marker
+            key={oficina.nome}
+            position={{ lat: oficina.lat, lng: oficina.lng }}
+            onClick={() => setSelectedOficina(oficina)}
+            icon={{
+              path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+              fillColor: nearestOficinas.includes(oficina) ? '#FF6600' : '#666666',
+              fillOpacity: 1,
+              strokeColor: '#FFFFFF',
+              strokeWeight: 2,
+              scale: selectedOficina?.nome === oficina.nome ? 10 : (nearestOficinas.includes(oficina) ? 8 : 6),
+            }}
+          />
+        ))}
 
-          {(nearestWorkshops.length > 0 ? nearestWorkshops : workshops).map((workshop) => (
-            <Marker
-              key={workshop.id}
-              position={{ lat: workshop.lat, lng: workshop.lng }}
-              onClick={() => handleMarkerClick(workshop)}
-              icon={{
-                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                fillColor: nearestWorkshops.includes(workshop) ? '#FF6600' : '#666666',
-                fillOpacity: 1,
-                strokeColor: '#FFFFFF',
-                strokeWeight: 2,
-                scale: workshop.id === selectedWorkshop?.id ? 10 : (nearestWorkshops.includes(workshop) ? 8 : 6),
-              }}
-            />
-          ))}
-        </GoogleMap>
-      </div>
+        {selectedOficina && (
+          <InfoWindow
+            position={{ lat: selectedOficina.lat, lng: selectedOficina.lng }}
+            onCloseClick={() => setSelectedOficina(null)}
+          >
+            <div className="p-4">
+              <h3 className="font-semibold mb-2">{selectedOficina.nome}</h3>
+              <p className="text-sm mb-1">{selectedOficina.endereco}</p>
+              <p className="text-sm mb-2">{selectedOficina.telefone}</p>
+              {selectedOficina.distance && (
+                <p className="text-sm text-brand-orange font-semibold">
+                  {selectedOficina.distance.toFixed(2)} km de distância
+                </p>
+              )}
+              <Button 
+                onClick={onSchedule}
+                size="sm"
+                className="w-full mt-2 bg-brand-orange hover:bg-opacity-90"
+              >
+                Agendar Diagnóstico
+              </Button>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
     </div>
   );
 };
