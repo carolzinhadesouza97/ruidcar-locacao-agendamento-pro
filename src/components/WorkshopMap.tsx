@@ -85,9 +85,9 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <MapContainer
-        className="z-0"
         style={{ width: '100%', height: '100%' }}
-        center={defaultCenter}
+        className="z-0"
+        center={defaultCenter as [number, number]}
         zoom={5}
       >
         <TileLayer
@@ -98,7 +98,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         <MapUpdater center={center} zoom={userLocation ? 12 : 5} />
 
         {userLocation && (
-          <Marker position={[userLocation.lat, userLocation.lng]}>
+          <Marker position={[userLocation.lat, userLocation.lng] as [number, number]}>
             <Popup>Sua localização</Popup>
           </Marker>
         )}
@@ -106,8 +106,8 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {nearestOficinas.map((oficina) => (
           <Marker
             key={`${oficina.nome}-${oficina.lat}-${oficina.lng}`}
-            position={[oficina.lat, oficina.lng]}
-            icon={workshopIcon}
+            position={[oficina.lat, oficina.lng] as [number, number]}
+            icon={workshopIcon as L.Icon}
           >
             <Popup>
               <div className="p-2 max-w-xs">
