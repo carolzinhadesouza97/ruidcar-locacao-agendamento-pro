@@ -1,3 +1,4 @@
+
 export interface OficinaRUIDCAR {
   nome: string;
   lat: number;
@@ -107,4 +108,5 @@ export const oficinasRUIDCAR: OficinaRUIDCAR[] = [
   { nome: 'Fator Premium', lat: -8.03543, lng: -34.94121, endereco: 'Av. Professor Joaquim Cavalcanti 250 - 262 e 270, Caxangá, Recife, PE', telefone: '81 99791-2653' },
   { nome: 'Faust Imports/ Mecanica Ellite', lat: -26.86987, lng: -49.09061, endereco: 'R. 5 de Outubro 345, Salto Norte, Blumenau, SC', telefone: '47 3378-4291' },
   { nome: 'Futura Radiadores E Baterias', lat: -29.75967, lng: -50.06900, endereco: 'R. Dr. Maia 4450, Centro, Uruguaiana, RS', telefone: '55 3402-0853' },
-  { nome: 'GT Centro Automotivo', lat: -21.70273, lng: -43.42668, endereco: 'R. Gen. Almerindo da Silva Gomes 341, Nova Era, Juiz de Fora, MG', telefone: '32 32
+  { nome: 'GT Centro Automotivo', lat: -21.70273, lng: -43.42668, endereco: 'R. Gen. Almerindo da Silva Gomes 341, Nova Era, Juiz de Fora, MG', telefone: '32 3225-9994' }
+];
