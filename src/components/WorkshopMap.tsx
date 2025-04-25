@@ -37,6 +37,17 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     setViewport
   } = useMapbox();
 
+  // Update parent component with nearest workshops when they change
+  useEffect(() => {
+    if (nearestWorkshops && nearestWorkshops.length > 0 && onUpdateNearestWorkshops) {
+      onUpdateNearestWorkshops(nearestWorkshops);
+    }
+  }, [nearestWorkshops, onUpdateNearestWorkshops]);
+
+  const handleFindNearestWorkshops = useCallback(() => {
+    handleLocateOficinas(oficinasRUIDCAR, workshops);
+  }, [handleLocateOficinas, workshops]);
+
   // Otimização: Memorize os markers para evitar re-renderizações desnecessárias
   const renderMarkers = useCallback(() => {
     return nearestOficinas.map((oficina) => (
@@ -76,18 +87,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         </div>
       </Marker>
     ));
-  }, [nearestOficinas, viewport]);
-
-  // Update parent component with nearest workshops when they change
-  useEffect(() => {
-    if (nearestWorkshops && nearestWorkshops.length > 0 && onUpdateNearestWorkshops) {
-      onUpdateNearestWorkshops(nearestWorkshops);
-    }
-  }, [nearestWorkshops, onUpdateNearestWorkshops]);
-
-  const handleFindNearestWorkshops = useCallback(() => {
-    handleLocateOficinas(oficinasRUIDCAR, workshops);
-  }, [handleLocateOficinas, workshops]);
+  }, [nearestOficinas, viewport, setViewport]);
 
   return (
     <div className="h-full w-full relative">
@@ -113,8 +113,13 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         reuseMaps
         maxZoom={16}
         minZoom={2}
+        cooperativeGestures={true}
+        dragRotate={false}
+        touchPitch={false}
+        optimizeForTerrain={false}
+        renderWorldCopies={true}
       >
-        <NavigationControl position="top-left" visualizePitch={true} />
+        <NavigationControl position="top-left" visualizePitch={false} />
         <GeolocateControl
           position="top-left"
           trackUserLocation

@@ -1,3 +1,4 @@
+
 export interface OficinaRUIDCAR {
   nome: string;
   lat: number;
@@ -107,4 +108,24 @@ export const oficinasRUIDCAR: OficinaRUIDCAR[] = [
   { nome: 'Fator Premium', lat: -8.03543, lng: -34.94121, endereco: 'Av. Professor Joaquim Cavalcanti 250 - 262 e 270, Caxangá, Recife, PE', telefone: '81 99791-2653' },
   { nome: 'Faust Imports/ Mecanica Ellite', lat: -26.86987, lng: -49.09061, endereco: 'R. 5 de Outubro 345, Salto Norte, Blumenau, SC', telefone: '47 3378-4291' },
   { nome: 'Futura Radiadores E Baterias', lat: -29.75967, lng: -50.06900, endereco: 'R. Dr. Maia 4450, Centro, Uruguaiana, RS', telefone: '55 3402-0853' },
-  { nome: 'GT Centro Automotivo', lat: -21.70273, lng: -43.42668, endereco: 'R. Gen. Almerindo da Silva Gomes 341, Nova Era, Juiz de Fora, MG',
+  { nome: 'GT Centro Automotivo', lat: -21.70273, lng: -43.42668, endereco: 'R. Gen. Almerindo da Silva Gomes 341, Nova Era, Juiz de Fora, MG', telefone: '32 3225-9994' },
+  { nome: 'Giros Car Auto Center', lat: -2.57179, lng: -44.22556, endereco: 'R. Cônego Ribamar Carvalho 366, Jardim São Cristovão, São Luís, MA', telefone: '98 3181-3922' },
+  { nome: 'Guido Peças e Serviços - Hidraulica Macapa', lat: -2.52995, lng: -44.24341, endereco: 'Av. Um 98, Bequimão, São Luís, MA', telefone: '' },
+  { nome: 'High Torque Store', lat: -23.03729, lng: -46.97432, endereco: 'Rua Gumercindo Vieira Rocha 195, Jardim Flora, Vinhedo, SP', telefone: '19 3886-1385' },
+  { nome: 'JMX Centro Automotivo', lat: -22.92287, lng: -43.35015, endereco: 'R. Comendador Siqueira 1165, Pechincha, Rio de Janeiro, RJ', telefone: '21 99164-9395' },
+  { nome: 'JR Centro Automotivo', lat: -6.85456, lng: -35.49643, endereco: 'Av. Rui Barbosa 529, Primavera, Guarabira, PB', telefone: '83 3271-4599' },
+  { nome: 'Kalú Import', lat: -23.45034, lng: -46.59964, endereco: 'Av. Cel. Sezefredo Fagundes 3223, Parque Casa de Pedra, São Paulo, SP', telefone: '11 2953-4643' },
+  { nome: 'LEO CAR', lat: -20.02181, lng: -44.22889, endereco: 'Ao lado da Citro Baterias - R. Ver. Paulo Drumond 177, São Salvador, Betim, MG', telefone: '31 3596-1482' },
+  { nome: 'LWG Centro Automotivo', lat: -22.42747, lng: -46.95276, endereco: 'Av. Prof. Adib Chaib 3200, Centro, Mogi Mirim, SP', telefone: '19 3862-8442' },
+  { nome: 'Leandro Serviços Automotivos', lat: -25.45534, lng: -49.25378, endereco: 'R. Iapó 1630, Prado Velho, Curitiba, PR', telefone: '41 3333-6112' },
+  { nome: 'Lotusul Auto Center', lat: -27.41968, lng: -49.59580, endereco: 'R. Carlos Thiesen 455, Centro, Ituporanga, SC', telefone: '47 3533-7000' },
+  { nome: 'MANUTEC manutenção técnica automotiva', lat: -7.40398, lng: -35.12353, endereco: 'Rodovia PE 75, km 26 170, Centro, Itambé, PE', telefone: '81 99268-6824' },
+  { nome: 'MC Car', lat: -16.70046, lng: -49.26697, endereco: 'R. T-53 325-271, St. Marista, Goiânia, GO', telefone: '62 3281-2852' },
+  { nome: 'MIGUELCAR CENTRO AUTOMOTIVO', lat: 2.52995, lng: -44.24340, endereco: 'Av. Um 98, Bequimão, São Luís, MA', telefone: '98 3246-8691' },
+  { nome: 'Mais Controll Centro Automotivo', lat: -14.87906, lng: -40.85255, endereco: 'R. J 30, Felicia, Vitória da Conquista, BA', telefone: '77 3017-4244' },
+  { nome: 'Master Serviços Automotivos (Oficina do Luiz)', lat: -9.61728, lng: -35.72138, endereco: 'Tv. Bom Destino 80, Barro Duro, Maceió, AL', telefone: '82 99996-9154' },
+  { nome: 'Mecanica do Lucy Ltda', lat: -23.56552, lng: -46.58244, endereco: 'R. Natal 700, Vila Bertioga, São Paulo, SP', telefone: '11 2219-2779' },
+  { nome: 'Mecânica Tanaca', lat: -23.49029, lng: -46.75399, endereco: 'R. Cel. José Rufino Freire 356, Vila Maria Eugenia, São Paulo, SP', telefone: '11 94784-6707' },
+  { nome: 'Mecânica Telefor', lat: -27.63041, lng: -52.28041, endereco: 'Av. Germano Hofmann 407, Centro, Erechim, RS', telefone: '54 3321-5648' },
+  { nome: 'Extreme Centro Automotivo', lat: -20.09320, lng: -44.59712, endereco: 'Av. Manoel da Custódia 1663, Vila Nazare, Itaúna, MG', telefone: '37 99868-5495' }
+];
