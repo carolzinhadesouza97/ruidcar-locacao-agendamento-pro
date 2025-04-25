@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
 import { calculateHaversineDistance } from '@/utils/distance';
@@ -8,15 +8,28 @@ export interface OficinaWithDistance extends OficinaRUIDCAR {
   distance: number;
 }
 
+// Coordenadas padrão para o Brasil (centro aproximado)
+const BRAZIL_CENTER = {
+  latitude: -15.77972,
+  longitude: -47.92972,
+  zoom: 4
+};
+
 export const useMapbox = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [isLocating, setIsLocating] = useState(false);
   const [viewport, setViewport] = useState({
-    latitude: -15.77972,
-    longitude: -47.92972,
-    zoom: 5
+    ...BRAZIL_CENTER
   });
+
+  // Inicializa o mapa garantindo que os valores iniciais estão corretos
+  useEffect(() => {
+    // Verifica se já temos localização do usuário
+    if (!userLocation) {
+      setViewport(BRAZIL_CENTER);
+    }
+  }, [userLocation]);
 
   const handleGeolocate = useCallback((position: { coords: GeolocationCoordinates }) => {
     const { latitude, longitude } = position.coords;
@@ -71,6 +84,11 @@ export const useMapbox = () => {
         console.error('Erro ao obter localização:', error);
         toast.error(`Não foi possível obter sua localização: ${error.message}`);
         setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
       }
     );
   }, [handleGeolocate]);

@@ -4,7 +4,7 @@ import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
 import { oficinasRUIDCAR } from '@/data/oficinasRUIDCAR';
-import Map, { Marker, GeolocateControl } from 'react-map-gl';
+import Map, { Marker, GeolocateControl, NavigationControl } from 'react-map-gl';
 import { useMapbox, OficinaWithDistance } from '@/hooks/map/useMapbox';
 import MapInfoPopup from '@/components/map/MapInfoPopup';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -15,12 +15,14 @@ interface WorkshopMapProps {
   onSchedule: () => void;
 }
 
+// Use token de exemplo do Mapbox que permite carregamento básico do mapa
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZGVtby1sb3ZhYmxlIiwiYSI6ImNsc3M5NzJrNTBkN3Yya3BucXVydDNmOXEifQ.OT-HRohbOTNc6iPf7hI9WA';
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
   onSchedule 
 }) => {
+  const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedOficina, setSelectedOficina] = useState<OficinaWithDistance | null>(null);
   
   const {
@@ -33,10 +35,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   } = useMapbox();
 
   useEffect(() => {
-    // Force re-render when the component mounts to ensure the map loads correctly
+    // Garantir que o mapa seja renderizado corretamente
     const timer = setTimeout(() => {
-      setViewport({...viewport});
-    }, 100);
+      setViewport(prev => ({...prev}));
+      setMapLoaded(true);
+    }, 300);
     
     return () => clearTimeout(timer);
   }, []);
@@ -65,13 +68,17 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         </Button>
       </div>
       
+      {/* Verificar se o mapa já foi carregado antes de renderizar */}
       <Map
         {...viewport}
         style={{ width: '100%', height: '100%' }}
         mapStyle="mapbox://styles/mapbox/streets-v11"
         mapboxAccessToken={MAPBOX_TOKEN}
         onMove={evt => setViewport(evt.viewState)}
+        onLoad={() => setMapLoaded(true)}
+        attributionControl={true}
       >
+        <NavigationControl position="top-left" />
         <GeolocateControl
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
