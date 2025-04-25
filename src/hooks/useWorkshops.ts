@@ -11,22 +11,21 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Use a more explicit approach to avoid TypeScript deep instantiation errors
-      const response = await supabase
+      // Separate the query execution from type handling to avoid deep instantiation
+      const { data, error } = await supabase
         .from('workshops')
         .select('*')
         .eq('owner_id', userId);
       
-      const { data, error } = response;
-      
       if (error) throw error;
       
       // Safely handle the response data
-      const workshopsData = data || [];
-      const typedWorkshops = workshopsData
-        .map(item => convertDTOToWorkshop(item as WorkshopDTO));
-        
-      setWorkshops(typedWorkshops);
+      if (data) {
+        const typedWorkshops = data.map(item => convertDTOToWorkshop(item as WorkshopDTO));
+        setWorkshops(typedWorkshops);
+      } else {
+        setWorkshops([]);
+      }
     } catch (error: any) {
       console.error('Erro ao carregar dados:', error);
       toast.error('Erro ao carregar oficinas');

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -64,7 +63,7 @@ const RegisterOwner = () => {
             name: data.name,
             role: 'oficina', // Explicitly set the role to 'oficina'
           },
-          redirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/dashboard`, // Changed from redirectTo to emailRedirectTo
         }
       });
       
