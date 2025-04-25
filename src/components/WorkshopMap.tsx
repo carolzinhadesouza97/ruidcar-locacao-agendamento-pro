@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -18,8 +19,10 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzU
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
-  onSchedule 
+  onSchedule,
+  workshops 
 }) => {
+  const mapRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedOficina, setSelectedOficina] = useState<OficinaWithDistance | null>(null);
   
@@ -32,11 +35,19 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     setViewport
   } = useMapbox();
 
+  // Force rerender map after component mounts to fix blank map issue
   useEffect(() => {
+    // Give a little time for the component to fully mount
     const timer = setTimeout(() => {
-      setViewport(prev => ({...prev}));
+      console.log("Initializing map with viewport:", viewport);
+      setViewport(prev => ({
+        ...prev,
+        latitude: prev.latitude || -15.77972,
+        longitude: prev.longitude || -47.92972,
+        zoom: prev.zoom || 4
+      }));
       setMapLoaded(true);
-    }, 300);
+    }, 500);
     
     return () => clearTimeout(timer);
   }, []);
@@ -65,17 +76,24 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <Map
+        ref={mapRef}
         {...viewport}
         style={{ width: '100%', height: '100%' }}
         mapStyle="mapbox://styles/mapbox/streets-v11"
         mapboxAccessToken={MAPBOX_TOKEN}
         onMove={evt => setViewport(evt.viewState)}
         attributionControl={true}
+        initialViewState={{
+          latitude: -15.77972,
+          longitude: -47.92972,
+          zoom: 4
+        }}
       >
         <NavigationControl position="top-left" />
         <GeolocateControl
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
+          position="top-left"
         />
         
         {userLocation && (

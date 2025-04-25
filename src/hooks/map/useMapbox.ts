@@ -19,9 +19,7 @@ export const useMapbox = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [isLocating, setIsLocating] = useState(false);
-  const [viewport, setViewport] = useState({
-    ...BRAZIL_CENTER
-  });
+  const [viewport, setViewport] = useState(BRAZIL_CENTER);
 
   // Inicializa o mapa garantindo que os valores iniciais estão corretos
   useEffect(() => {
