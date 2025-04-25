@@ -9,8 +9,9 @@ export interface OficinaWithDistance extends OficinaRUIDCAR {
   distance: number;
 }
 
+// Modifying this interface to match the Workshop type where distance is optional and is a number
 export interface WorkshopWithDistance extends Workshop {
-  distance: string;
+  distance: number; // Changed from string to number to match Workshop type
 }
 
 // Coordenadas padrão para o Brasil (centro aproximado)
@@ -84,13 +85,13 @@ export const useMapbox = () => {
           
           return {
             ...workshop,
-            distance: distance.toFixed(2) // Format as string with 2 decimal places
+            distance: distance // Keep as number, don't convert to string
           };
         });
         
         // Get 3-5 nearest workshops
         const nearestShops = workshopsWithDistance
-          .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+          .sort((a, b) => a.distance - b.distance)
           .slice(0, 5);
           
         setNearestWorkshops(nearestShops);

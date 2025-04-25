@@ -58,9 +58,9 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
                   {workshop.openHours.weekdays} (seg-sex)
                 </span>
               </div>
-              {workshop.distance && (
+              {workshop.distance !== undefined && (
                 <Badge variant="outline" className="w-fit bg-brand-orange/10 text-brand-orange border-brand-orange">
-                  {workshop.distance} km de distância
+                  {workshop.distance.toFixed(2)} km de distância
                 </Badge>
               )}
             </div>
