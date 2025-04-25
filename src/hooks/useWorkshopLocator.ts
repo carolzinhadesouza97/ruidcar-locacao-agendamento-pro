@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Workshop } from '@/types/workshop';
 import { Workshop as DataWorkshop } from '@/data/workshops';
 import { calculateHaversineDistance } from '@/utils/distance';
@@ -13,7 +13,6 @@ export const useWorkshopLocator = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [nearestWorkshops, setNearestWorkshops] = useState<DataWorkshop[]>([]);
   const [isLocating, setIsLocating] = useState(false);
-  const mapRef = useRef<google.maps.Map | null>(null);
 
   const findNearestWorkshops = (workshops: DataWorkshop[], location: Location): DataWorkshop[] => {
     return workshops
@@ -30,7 +29,7 @@ export const useWorkshopLocator = () => {
       .slice(0, 5);
   };
 
-  const locateWorkshops = (workshops: DataWorkshop[]) => {
+  const locateWorkshops = (workshops: DataWorkshop[], map: google.maps.Map | null) => {
     if (!workshops || workshops.length === 0) {
       return;
     }
@@ -48,9 +47,9 @@ export const useWorkshopLocator = () => {
         const nearest = findNearestWorkshops(workshops, location);
         setNearestWorkshops(nearest);
 
-        if (mapRef.current) {
-          mapRef.current.panTo(location);
-          mapRef.current.setZoom(12);
+        if (map) {
+          map.panTo(location);
+          map.setZoom(12);
         }
         
         setIsLocating(false);
@@ -66,7 +65,6 @@ export const useWorkshopLocator = () => {
     userLocation,
     nearestWorkshops,
     isLocating,
-    mapRef,
     locateWorkshops
   };
 };

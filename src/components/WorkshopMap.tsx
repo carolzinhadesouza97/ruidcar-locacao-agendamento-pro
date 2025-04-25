@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import React, { useState } from 'react';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -13,6 +13,31 @@ interface WorkshopMapProps {
   workshops?: Workshop[];
 }
 
+// Map container style
+const containerStyle = {
+  width: '100%',
+  height: '100%'
+};
+
+// Default center (Brazil)
+const defaultCenter = {
+  lat: -15.77972,
+  lng: -47.92972
+};
+
+const mapOptions = {
+  styles: [
+    {
+      featureType: "poi",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    }
+  ],
+  mapTypeControl: false,
+  fullscreenControl: false,
+  streetViewControl: false,
+};
+
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
   workshops = workshopsData // Use default value from data/workshops.ts
@@ -21,12 +46,13 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     userLocation,
     nearestWorkshops,
     isLocating,
-    mapRef,
     locateWorkshops
   } = useWorkshopLocator();
 
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
   const handleMapLoad = (map: google.maps.Map) => {
-    mapRef.current = map;
+    setMap(map);
     
     const bounds = new google.maps.LatLngBounds();
     workshops.forEach(workshop => {
@@ -40,8 +66,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       toast.error('Nenhuma oficina disponível no momento');
       return;
     }
-    locateWorkshops(workshops);
+    locateWorkshops(workshops, map);
   };
+
+  // Determine which workshops to display (nearest or all)
+  const workshopsToDisplay = nearestWorkshops.length ? nearestWorkshops : workshops;
 
   return (
     <div className="h-full w-full flex flex-col relative">
@@ -57,64 +86,45 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
 
       <div className="h-full w-full rounded-lg shadow-md">
-        <GoogleMap
-          center={{ lat: -15.77972, lng: -47.92972 }}
-          zoom={5}
-          onLoad={handleMapLoad}
-          mapContainerStyle={{ width: '100%', height: '100%' }}
-          options={{
-            styles: [
-              {
-                featureType: "poi",
-                elementType: "labels",
-                stylers: [{ visibility: "off" }]
-              }
-            ],
-            mapTypeControl: false,
-            fullscreenControl: false,
-            streetViewControl: false,
-          }}
-        >
-          {userLocation && (
-            <Marker
-              position={userLocation}
-              icon={{
-                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                `),
-                scaledSize: new google.maps.Size(36, 36),
-                anchor: new google.maps.Point(18, 18),
-              }}
-            />
-          )}
+        <LoadScript googleMapsApiKey="AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac">
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={defaultCenter}
+            zoom={5}
+            onLoad={handleMapLoad}
+            options={mapOptions}
+          >
+            {userLocation && (
+              <Marker
+                position={userLocation}
+                icon={{
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#3b82f6',
+                  fillOpacity: 1,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2,
+                  scale: 8,
+                }}
+              />
+            )}
 
-          {(nearestWorkshops.length ? nearestWorkshops : workshops).map((workshop) => (
-            <Marker
-              key={workshop.id}
-              position={{ lat: workshop.lat, lng: workshop.lng }}
-              onClick={() => onSelectWorkshop(workshop)}
-              icon={{
-                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${nearestWorkshops.includes(workshop) ? '#FF6600' : '#666666'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                `),
-                scaledSize: new google.maps.Size(
-                  nearestWorkshops.includes(workshop) ? 40 : 32,
-                  nearestWorkshops.includes(workshop) ? 40 : 32
-                ),
-                anchor: new google.maps.Point(
-                  nearestWorkshops.includes(workshop) ? 20 : 16,
-                  nearestWorkshops.includes(workshop) ? 40 : 32
-                ),
-              }}
-            />
-          ))}
-        </GoogleMap>
+            {workshopsToDisplay.map((workshop) => (
+              <Marker
+                key={workshop.id}
+                position={{ lat: workshop.lat, lng: workshop.lng }}
+                onClick={() => onSelectWorkshop(workshop)}
+                icon={{
+                  path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                  fillColor: nearestWorkshops.includes(workshop) ? '#FF6600' : '#666666',
+                  fillOpacity: 1,
+                  strokeColor: '#FFFFFF',
+                  strokeWeight: 2,
+                  scale: nearestWorkshops.includes(workshop) ? 8 : 6,
+                }}
+              />
+            ))}
+          </GoogleMap>
+        </LoadScript>
       </div>
     </div>
   );

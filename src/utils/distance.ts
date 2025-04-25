@@ -16,4 +16,3 @@ export const calculateHaversineDistance = (
     Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
 };
-
