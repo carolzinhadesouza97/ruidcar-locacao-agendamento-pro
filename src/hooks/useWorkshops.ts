@@ -10,18 +10,15 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Avoid TypeScript's type inference completely by using any
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
-        .eq('owner_id', userId) as any;
+        .eq('owner_id', userId)
+        .returns<WorkshopDTO[]>();
       
       if (error) throw error;
       
-      // Process the data with our converter
-      const rawData = (data ?? []) as WorkshopDTO[];
-      const typedWorkshops = rawData.map(convertDTOToWorkshop);
-      
+      const typedWorkshops = (data ?? []).map(convertDTOToWorkshop);
       setWorkshops(typedWorkshops);
     } catch (error: any) {
       console.error('Erro ao carregar dados:', error);
