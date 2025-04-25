@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Workshop, WorkshopDTO } from '@/types/workshop';
@@ -10,6 +11,7 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
+      // Use a simpler type approach to avoid deep type inference
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
@@ -17,6 +19,7 @@ export const useWorkshops = (userId: string) => {
       
       if (error) throw error;
       
+      // Ensure data is an array and convert each item explicitly
       const typedWorkshops = Array.isArray(data) 
         ? data.map(item => convertDTOToWorkshop(item as WorkshopDTO)) 
         : [];
