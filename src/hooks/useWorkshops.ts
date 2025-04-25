@@ -11,7 +11,7 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Use a simpler type approach to avoid deep type inference
+      // Using type assertion to define the return type without deep inference
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
@@ -19,10 +19,9 @@ export const useWorkshops = (userId: string) => {
       
       if (error) throw error;
       
-      // Ensure data is an array and convert each item explicitly
-      const typedWorkshops = Array.isArray(data) 
-        ? data.map(item => convertDTOToWorkshop(item as WorkshopDTO)) 
-        : [];
+      // Explicitly handle the data as a simple array without complex typing
+      const workshopsData = Array.isArray(data) ? data : [];
+      const typedWorkshops = workshopsData.map(item => convertDTOToWorkshop(item as WorkshopDTO));
         
       setWorkshops(typedWorkshops);
     } catch (error: any) {
