@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { WorkshopFormData } from '@/schemas/workshopSchema';
+import { WorkshopFormInput } from '@/schemas/workshopSchema';
 
 export const useWorkshopRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRegistration = async (data: WorkshopFormData) => {
+  const handleRegistration = async (data: WorkshopFormInput) => {
     try {
       setIsSubmitting(true);
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -34,6 +34,11 @@ export const useWorkshopRegistration = () => {
 
       const location = geocodeResult as google.maps.LatLng;
 
+      // Parse string values to numbers for price fields
+      const pricePopular = parseFloat(data.pricePopular.replace(',', '.'));
+      const priceMedium = parseFloat(data.priceMedium.replace(',', '.'));
+      const priceImported = parseFloat(data.priceImported.replace(',', '.'));
+
       const { data: workshopData, error: workshopError } = await supabase
         .from('workshops')
         .insert({
@@ -46,9 +51,9 @@ export const useWorkshopRegistration = () => {
           lat: location.lat(),
           lng: location.lng(),
           phone: data.phone,
-          price_popular: data.pricePopular,
-          price_medium: data.priceMedium,
-          price_imported: data.priceImported,
+          price_popular: pricePopular,
+          price_medium: priceMedium,
+          price_imported: priceImported,
           open_hours: {
             weekdays: '08:00 - 18:00',
             saturday: '08:00 - 12:00',
