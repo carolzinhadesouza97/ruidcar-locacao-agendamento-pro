@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,11 @@ type OpenHours = Record<string, string>;
 // Helper function to convert Json to OpenHours
 const convertOpenHours = (hours: Json): OpenHours => {
   if (typeof hours === 'string') {
-    return JSON.parse(hours);
+    try {
+      return JSON.parse(hours);
+    } catch {
+      return {};
+    }
   }
   if (Array.isArray(hours)) {
     return Object.fromEntries(hours as [string, string][]);
@@ -68,6 +71,16 @@ const Dashboard = () => {
         if (user) {
           setUserId(user.id);
           
+          // Define a generic type for raw workshop data that doesn't need to match exactly
+          type RawWorkshopData = {
+            id: string;
+            name: string;
+            address: string;
+            city: string;
+            state: string;
+            [key: string]: any; // Allow any additional properties
+          };
+          
           const { data, error } = await supabase
             .from('workshops')
             .select('*')
@@ -75,16 +88,19 @@ const Dashboard = () => {
             
           if (error) throw error;
           
-          // Explicitly map the raw data to our Workshop interface with simplified typing
-          const typedWorkshops: Workshop[] = (data || []).map(item => ({
+          // Cast data to the generic type first
+          const rawData = data as unknown as RawWorkshopData[];
+          
+          // Then map to our defined Workshop type
+          const typedWorkshops: Workshop[] = (rawData || []).map(item => ({
             id: item.id,
             name: item.name,
             address: item.address,
             city: item.city,
             state: item.state,
             zip_code: item.zip_code,
-            phone: item.phone,
-            website: item.website || undefined, // Handle potential undefined
+            phone: item.phone || undefined,
+            website: item.website || undefined,
             price_popular: item.price_popular,
             price_medium: item.price_medium,
             price_imported: item.price_imported,
@@ -141,6 +157,9 @@ const Dashboard = () => {
   
   const handleWorkshopSaved = async () => {
     try {
+      // Define a specific type for raw data to avoid excessive type instantiation
+      type RawWorkshopData = Record<string, any>;
+      
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
@@ -148,42 +167,19 @@ const Dashboard = () => {
         
       if (error) throw error;
       
-      // Define a specific type for raw data to avoid excessive type instantiation
-      type RawWorkshop = {
-        id: string;
-        name: string;
-        address: string;
-        city: string;
-        state: string;
-        zip_code: string;
-        phone: string;
-        website?: string; 
-        price_popular: number;
-        price_medium: number;
-        price_imported: number;
-        rating: number;
-        approved: boolean;
-        created_at: string;
-        email: string;
-        lat: number;
-        lng: number;
-        open_hours: Json;
-        [key: string]: any; // For any other properties
-      };
-      
-      // Now cast raw data to this type before mapping
-      const rawWorkshops = (data || []) as unknown as RawWorkshop[];
+      // Use the simple generic type
+      const rawData = (data || []) as RawWorkshopData[];
       
       // Map to our Workshop interface
-      const typedWorkshops: Workshop[] = rawWorkshops.map(item => ({
+      const typedWorkshops: Workshop[] = rawData.map(item => ({
         id: item.id,
         name: item.name,
         address: item.address,
         city: item.city,
         state: item.state,
         zip_code: item.zip_code,
-        phone: item.phone,
-        website: item.website || undefined, // Handle potential undefined
+        phone: item.phone || undefined,
+        website: item.website || undefined,
         price_popular: item.price_popular,
         price_medium: item.price_medium,
         price_imported: item.price_imported,
