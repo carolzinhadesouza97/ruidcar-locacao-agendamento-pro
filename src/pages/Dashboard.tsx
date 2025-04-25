@@ -84,7 +84,7 @@ const Dashboard = () => {
             state: item.state,
             zip_code: item.zip_code,
             phone: item.phone,
-            website: item.website,
+            website: item.website || undefined, // Handle potential undefined
             price_popular: item.price_popular,
             price_medium: item.price_medium,
             price_imported: item.price_imported,
@@ -148,8 +148,34 @@ const Dashboard = () => {
         
       if (error) throw error;
       
-      // Explicitly map the raw data to our Workshop interface with simplified typing
-      const typedWorkshops: Workshop[] = (data || []).map(item => ({
+      // Define a specific type for raw data to avoid excessive type instantiation
+      type RawWorkshop = {
+        id: string;
+        name: string;
+        address: string;
+        city: string;
+        state: string;
+        zip_code: string;
+        phone: string;
+        website?: string; 
+        price_popular: number;
+        price_medium: number;
+        price_imported: number;
+        rating: number;
+        approved: boolean;
+        created_at: string;
+        email: string;
+        lat: number;
+        lng: number;
+        open_hours: Json;
+        [key: string]: any; // For any other properties
+      };
+      
+      // Now cast raw data to this type before mapping
+      const rawWorkshops = (data || []) as unknown as RawWorkshop[];
+      
+      // Map to our Workshop interface
+      const typedWorkshops: Workshop[] = rawWorkshops.map(item => ({
         id: item.id,
         name: item.name,
         address: item.address,
@@ -157,7 +183,7 @@ const Dashboard = () => {
         state: item.state,
         zip_code: item.zip_code,
         phone: item.phone,
-        website: item.website,
+        website: item.website || undefined, // Handle potential undefined
         price_popular: item.price_popular,
         price_medium: item.price_medium,
         price_imported: item.price_imported,
