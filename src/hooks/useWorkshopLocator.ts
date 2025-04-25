@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { calculateHaversineDistance } from '@/utils/distance';
@@ -13,11 +12,11 @@ export const useWorkshopLocator = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
   const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
   const [isLocating, setIsLocating] = useState(false);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
 
   const findNearestWorkshops = (workshops: Workshop[], location: Location): Workshop[] => {
     return workshops
       .map(workshop => {
-        // Use Google Maps geometry if available, otherwise fallback to Haversine
         let distance;
         if (window.google && window.google.maps && window.google.maps.geometry) {
           const userLatLng = new google.maps.LatLng(location.lat, location.lng);
@@ -25,7 +24,7 @@ export const useWorkshopLocator = () => {
           distance = google.maps.geometry.spherical.computeDistanceBetween(
             userLatLng, 
             workshopLatLng
-          ) / 1000; // Convert to km
+          ) / 1000;
         } else {
           distance = calculateHaversineDistance(
             location.lat,
@@ -51,6 +50,7 @@ export const useWorkshopLocator = () => {
     }
     
     setIsLocating(true);
+    setSelectedWorkshop(null);
     
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -64,21 +64,16 @@ export const useWorkshopLocator = () => {
         setNearestWorkshops(nearest);
 
         if (map) {
-          // Create bounds to fit all markers
           const bounds = new google.maps.LatLngBounds();
           
-          // Add user location to bounds
           bounds.extend(new google.maps.LatLng(location.lat, location.lng));
           
-          // Add workshop locations to bounds
           nearest.forEach(workshop => {
             bounds.extend(new google.maps.LatLng(workshop.lat, workshop.lng));
           });
           
-          // Fit the map to the bounds
           map.fitBounds(bounds);
           
-          // If the zoom is too high, limit it
           const listener = google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
             if (map.getZoom() > 15) map.setZoom(15);
           });
@@ -100,10 +95,21 @@ export const useWorkshopLocator = () => {
     );
   };
 
+  const selectWorkshop = (workshop: Workshop) => {
+    setSelectedWorkshop(workshop);
+  };
+
+  const clearSelectedWorkshop = () => {
+    setSelectedWorkshop(null);
+  };
+
   return {
     userLocation,
     nearestWorkshops,
     isLocating,
-    locateWorkshops
+    locateWorkshops,
+    selectedWorkshop,
+    selectWorkshop,
+    clearSelectedWorkshop
   };
 };

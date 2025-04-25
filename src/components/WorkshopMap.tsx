@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Workshop } from '@/data/workshops';
@@ -7,10 +6,12 @@ import { Navigation } from 'lucide-react';
 import { toast } from 'sonner';
 import { useWorkshopLocator } from '@/hooks/useWorkshopLocator';
 import { workshopsData } from '@/data/workshops';
+import WorkshopDetails from './WorkshopDetails';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
   workshops?: Workshop[];
+  onSchedule: () => void;
 }
 
 const containerStyle = {
@@ -38,16 +39,19 @@ const mapOptions = {
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
-  workshops = workshopsData 
+  workshops = workshopsData,
+  onSchedule
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
   
   const {
     userLocation,
     nearestWorkshops,
     isLocating,
-    locateWorkshops
+    locateWorkshops,
+    selectedWorkshop,
+    selectWorkshop,
+    clearSelectedWorkshop
   } = useWorkshopLocator();
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -56,40 +60,10 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     libraries: ['places', 'geometry']
   });
 
-  const handleMapLoad = useCallback((map: google.maps.Map) => {
-    setMap(map);
-    
-    const bounds = new google.maps.LatLngBounds();
-    workshops.forEach(workshop => {
-      bounds.extend({ lat: workshop.lat, lng: workshop.lng });
-    });
-    map.fitBounds(bounds);
-  }, [workshops]);
-
-  const handleLocateWorkshops = () => {
-    if (!isLoaded) {
-      toast.error('Google Maps não está carregado ainda. Aguarde um momento.');
-      return;
-    }
-    
-    if (!workshops.length) {
-      toast.error('Nenhuma oficina disponível no momento');
-      return;
-    }
-    
-    locateWorkshops(workshops, map);
-  };
-
   const handleMarkerClick = (workshop: Workshop) => {
-    setSelectedWorkshop(workshop);
+    selectWorkshop(workshop);
     onSelectWorkshop(workshop);
   };
-
-  const closeInfoWindow = () => {
-    setSelectedWorkshop(null);
-  };
-
-  const workshopsToDisplay = nearestWorkshops.length ? nearestWorkshops : workshops;
 
   if (loadError) {
     return <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-lg">
@@ -107,7 +81,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     <div className="h-full w-full flex flex-col relative">
       <div className="absolute top-4 right-4 z-10">
         <Button 
-          onClick={handleLocateWorkshops}
+          onClick={() => locateWorkshops(workshops, map)}
           className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
           disabled={isLocating}
         >
@@ -116,12 +90,22 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         </Button>
       </div>
 
+      {selectedWorkshop && (
+        <div className="absolute bottom-4 left-4 right-4 z-10 bg-white rounded-lg shadow-lg max-w-2xl mx-auto">
+          <WorkshopDetails 
+            workshop={selectedWorkshop}
+            onBack={clearSelectedWorkshop}
+            onSchedule={onSchedule}
+          />
+        </div>
+      )}
+
       <div className="h-full w-full rounded-lg shadow-md">
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={defaultCenter}
           zoom={5}
-          onLoad={handleMapLoad}
+          onLoad={setMap}
           options={mapOptions}
         >
           {userLocation && (
@@ -134,7 +118,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
             />
           )}
 
-          {workshopsToDisplay.map((workshop) => (
+          {(nearestWorkshops.length > 0 ? nearestWorkshops : workshops).map((workshop) => (
             <Marker
               key={workshop.id}
               position={{ lat: workshop.lat, lng: workshop.lng }}
@@ -145,26 +129,10 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
                 fillOpacity: 1,
                 strokeColor: '#FFFFFF',
                 strokeWeight: 2,
-                scale: nearestWorkshops.includes(workshop) ? 8 : 6,
+                scale: workshop.id === selectedWorkshop?.id ? 10 : (nearestWorkshops.includes(workshop) ? 8 : 6),
               }}
             />
           ))}
-          
-          {selectedWorkshop && (
-            <InfoWindow
-              position={{ lat: selectedWorkshop.lat, lng: selectedWorkshop.lng }}
-              onCloseClick={closeInfoWindow}
-            >
-              <div className="p-2 max-w-xs">
-                <h3 className="font-semibold text-lg">{selectedWorkshop.name}</h3>
-                <p className="text-sm">{selectedWorkshop.address}</p>
-                <p className="text-sm">{selectedWorkshop.city}, {selectedWorkshop.state}</p>
-                {selectedWorkshop.distance && (
-                  <p className="font-medium text-brand-orange">{selectedWorkshop.distance} km de distância</p>
-                )}
-              </div>
-            </InfoWindow>
-          )}
         </GoogleMap>
       </div>
     </div>
