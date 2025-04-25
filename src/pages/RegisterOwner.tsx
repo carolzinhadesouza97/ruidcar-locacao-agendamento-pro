@@ -1,48 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { LogIn } from 'lucide-react';
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { Form } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { LogIn } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-
-const registerSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
-  confirmPassword: z.string().min(6, 'Confirmação de senha necessária'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "As senhas não conferem",
-  path: ["confirmPassword"],
-});
-
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import { useNavigate } from 'react-router-dom';
+import { registerOwnerSchema, type RegisterOwnerFormValues } from '@/schemas/ownerSchema';
+import { OwnerFormFields } from '@/components/auth/OwnerFormFields';
+import { useOwnerRegistration } from '@/hooks/useOwnerRegistration';
 
 const RegisterOwner = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, handleRegister, handleSignInWithGoogle } = useOwnerRegistration();
   
-  useEffect(() => {
-    // Check if already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
-      }
-    };
-    
-    checkUser();
-  }, [navigate]);
-  
-  const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<RegisterOwnerFormValues>({
+    resolver: zodResolver(registerOwnerSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -50,64 +25,6 @@ const RegisterOwner = () => {
       confirmPassword: '',
     },
   });
-  
-  const handleRegister = async (data: RegisterFormValues) => {
-    setIsLoading(true);
-    try {
-      // Define user metadata with name and role
-      const { error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            name: data.name,
-            role: 'oficina', // Explicitly set the role to 'oficina'
-          },
-          emailRedirectTo: `${window.location.origin}/dashboard`, // Changed from redirectTo to emailRedirectTo
-        }
-      });
-      
-      if (error) throw error;
-      
-      toast.success('Cadastro realizado com sucesso! Você será redirecionado para o dashboard.');
-      // We'll handle the redirect via auth state change, no need for setTimeout
-    } catch (error: any) {
-      console.error('Erro ao cadastrar:', error);
-      let errorMessage = 'Erro ao cadastrar';
-      
-      if (error.message.includes('already exists')) {
-        errorMessage = 'Este email já está cadastrado. Tente fazer login.';
-      }
-      
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleSignInWithGoogle = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-          queryParams: {
-            // Add metadata to set role during Google signin
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      });
-      
-      if (error) throw error;
-      // Redirect handled by Supabase
-    } catch (error: any) {
-      console.error('Erro ao cadastrar com Google:', error);
-      toast.error(error.message || 'Erro ao cadastrar com Google');
-      setIsLoading(false);
-    }
-  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -144,80 +61,7 @@ const RegisterOwner = () => {
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome completo</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Seu nome completo" 
-                          disabled={isLoading}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email" 
-                          placeholder="seu@email.com" 
-                          disabled={isLoading}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Senha</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="••••••••" 
-                          disabled={isLoading}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirme a senha</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="••••••••" 
-                          disabled={isLoading}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <OwnerFormFields form={form} isLoading={isLoading} />
                 
                 <Button 
                   type="submit" 
