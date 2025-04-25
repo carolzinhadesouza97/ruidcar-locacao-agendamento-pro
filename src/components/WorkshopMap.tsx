@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { toast } from 'sonner';
 import { oficinasRUIDCAR, OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
 import { calculateHaversineDistance } from '@/utils/distance';
 import { useGoogleMaps } from '@/hooks/useGoogleMaps';
-import { mapMarkers } from '@/utils/mapMarkers';
+import { createRuidcarMarker, createUserLocationMarker } from '@/utils/mapMarkers';
 
 // Extended interface to include distance property
 interface OficinaWithDistance extends OficinaRUIDCAR {
@@ -34,7 +33,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
 
-  // Função para limpar marcadores existentes
   const clearMarkers = useCallback(() => {
     if (markers.length > 0) {
       markers.forEach(marker => marker.setMap(null));
@@ -60,13 +58,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         const { latitude: userLat, longitude: userLng } = position.coords;
         setUserLocation({ lat: userLat, lng: userLng });
 
-        // Create a new array with distance calculated for each oficina
         const oficinasWithDistance: OficinaWithDistance[] = oficinasRUIDCAR.map(oficina => ({
           ...oficina,
           distance: calculateHaversineDistance(userLat, userLng, oficina.lat, oficina.lng)
         }));
 
-        // Sort oficinas by distance and take the nearest 5
         const nearest = oficinasWithDistance
           .sort((a, b) => a.distance - b.distance)
           .slice(0, 5);
@@ -83,7 +79,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           
           map.fitBounds(bounds);
           
-          // Adjust zoom level after bounds change
           google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
             if (map.getZoom() && map.getZoom() > 12) map.setZoom(12);
           });
@@ -128,10 +123,9 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   };
 
   useEffect(() => {
-    // Inicializa o mapa com configurações padrão
     if (map && isLoaded) {
       map.setOptions({
-        center: { lat: -15.77972, lng: -47.92972 }, // Centro do Brasil
+        center: { lat: -15.77972, lng: -47.92972 },
         zoom: 5,
         mapTypeControl: false,
         fullscreenControl: false,
@@ -147,7 +141,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     }
   }, [map, isLoaded]);
 
-  // Efeito para adicionar marcadores quando o mapa estiver carregado
   useEffect(() => {
     if (!map || !isLoaded) {
       return;
@@ -155,28 +148,17 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
 
     clearMarkers();
     
-    // Cria novo infoWindow para ser reutilizado
     if (!infoWindow) {
       setInfoWindow(new google.maps.InfoWindow());
     }
 
     const newMarkers: google.maps.Marker[] = [];
     
-    // Add user marker if available
     if (userLocation) {
-      const userMarker = new google.maps.Marker({
-        position: userLocation,
-        map,
-        icon: {
-          url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-          scaledSize: new google.maps.Size(40, 40),
-        },
-        title: "Sua localização"
-      });
+      const userMarker = createUserLocationMarker(userLocation, map);
       newMarkers.push(userMarker);
     }
 
-    // Add oficinas markers
     const oficinasToDisplay = nearestOficinas.length > 0 ? nearestOficinas : [];
     
     oficinasToDisplay.forEach((oficina) => {
@@ -218,7 +200,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     setMarkers(newMarkers);
 
     return () => {
-      // Limpa marcadores quando o componente é desmontado ou dependências mudam
       newMarkers.forEach(marker => marker.setMap(null));
     };
   }, [map, isLoaded, userLocation, nearestOficinas, selectedOficina, infoWindow, clearMarkers]);
