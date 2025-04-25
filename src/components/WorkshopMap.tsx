@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -41,6 +41,8 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   workshops = workshopsData 
 }) => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
+  
   const {
     userLocation,
     nearestWorkshops,
@@ -48,13 +50,13 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     locateWorkshops
   } = useWorkshopLocator();
 
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: 'AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac',
     libraries: ['places', 'geometry']
   });
 
-  const handleMapLoad = (map: google.maps.Map) => {
+  const handleMapLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
     
     const bounds = new google.maps.LatLngBounds();
@@ -62,20 +64,43 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       bounds.extend({ lat: workshop.lat, lng: workshop.lng });
     });
     map.fitBounds(bounds);
-  };
+  }, [workshops]);
 
   const handleLocateWorkshops = () => {
+    if (!isLoaded) {
+      toast.error('Google Maps não está carregado ainda. Aguarde um momento.');
+      return;
+    }
+    
     if (!workshops.length) {
       toast.error('Nenhuma oficina disponível no momento');
       return;
     }
+    
     locateWorkshops(workshops, map);
+  };
+
+  const handleMarkerClick = (workshop: Workshop) => {
+    setSelectedWorkshop(workshop);
+    onSelectWorkshop(workshop);
+  };
+
+  const closeInfoWindow = () => {
+    setSelectedWorkshop(null);
   };
 
   const workshopsToDisplay = nearestWorkshops.length ? nearestWorkshops : workshops;
 
+  if (loadError) {
+    return <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-lg">
+      Erro ao carregar o Google Maps. Verifique sua conexão.
+    </div>;
+  }
+
   if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <div className="h-full w-full flex items-center justify-center bg-gray-100 rounded-lg">
+      Carregando o mapa...
+    </div>;
   }
 
   return (
@@ -103,12 +128,8 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
             <Marker
               position={userLocation}
               icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                fillColor: '#3b82f6',
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 2,
-                scale: 8,
+                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                scaledSize: new google.maps.Size(40, 40),
               }}
             />
           )}
@@ -117,7 +138,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
             <Marker
               key={workshop.id}
               position={{ lat: workshop.lat, lng: workshop.lng }}
-              onClick={() => onSelectWorkshop(workshop)}
+              onClick={() => handleMarkerClick(workshop)}
               icon={{
                 path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
                 fillColor: nearestWorkshops.includes(workshop) ? '#FF6600' : '#666666',
@@ -128,6 +149,22 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
               }}
             />
           ))}
+          
+          {selectedWorkshop && (
+            <InfoWindow
+              position={{ lat: selectedWorkshop.lat, lng: selectedWorkshop.lng }}
+              onCloseClick={closeInfoWindow}
+            >
+              <div className="p-2 max-w-xs">
+                <h3 className="font-semibold text-lg">{selectedWorkshop.name}</h3>
+                <p className="text-sm">{selectedWorkshop.address}</p>
+                <p className="text-sm">{selectedWorkshop.city}, {selectedWorkshop.state}</p>
+                {selectedWorkshop.distance && (
+                  <p className="font-medium text-brand-orange">{selectedWorkshop.distance} km de distância</p>
+                )}
+              </div>
+            </InfoWindow>
+          )}
         </GoogleMap>
       </div>
     </div>

@@ -16,21 +16,37 @@ export const useWorkshopLocator = () => {
 
   const findNearestWorkshops = (workshops: Workshop[], location: Location): Workshop[] => {
     return workshops
-      .map(workshop => ({
-        ...workshop,
-        distance: calculateHaversineDistance(
-          location.lat,
-          location.lng,
-          workshop.lat,
-          workshop.lng
-        )
-      }))
+      .map(workshop => {
+        // Use Google Maps geometry if available, otherwise fallback to Haversine
+        let distance;
+        if (window.google && window.google.maps && window.google.maps.geometry) {
+          const userLatLng = new google.maps.LatLng(location.lat, location.lng);
+          const workshopLatLng = new google.maps.LatLng(workshop.lat, workshop.lng);
+          distance = google.maps.geometry.spherical.computeDistanceBetween(
+            userLatLng, 
+            workshopLatLng
+          ) / 1000; // Convert to km
+        } else {
+          distance = calculateHaversineDistance(
+            location.lat,
+            location.lng,
+            workshop.lat,
+            workshop.lng
+          );
+        }
+        
+        return {
+          ...workshop,
+          distance: Number(distance.toFixed(2))
+        };
+      })
       .sort((a, b) => (a.distance || 0) - (b.distance || 0))
       .slice(0, 5);
   };
 
   const locateWorkshops = (workshops: Workshop[], map: google.maps.Map | null) => {
     if (!workshops || workshops.length === 0) {
+      toast.error('Nenhuma oficina disponível no momento');
       return;
     }
     
@@ -48,17 +64,38 @@ export const useWorkshopLocator = () => {
         setNearestWorkshops(nearest);
 
         if (map) {
-          map.panTo(location);
-          map.setZoom(12);
+          // Create bounds to fit all markers
+          const bounds = new google.maps.LatLngBounds();
+          
+          // Add user location to bounds
+          bounds.extend(new google.maps.LatLng(location.lat, location.lng));
+          
+          // Add workshop locations to bounds
+          nearest.forEach(workshop => {
+            bounds.extend(new google.maps.LatLng(workshop.lat, workshop.lng));
+          });
+          
+          // Fit the map to the bounds
+          map.fitBounds(bounds);
+          
+          // If the zoom is too high, limit it
+          const listener = google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+            if (map.getZoom() > 15) map.setZoom(15);
+          });
         }
         
         setIsLocating(false);
-        toast.success('Localização encontrada');
+        toast.success('Oficinas próximas encontradas');
       },
       (error) => {
         console.error('Erro ao obter localização:', error);
         toast.error('Não foi possível obter sua localização');
         setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     );
   };

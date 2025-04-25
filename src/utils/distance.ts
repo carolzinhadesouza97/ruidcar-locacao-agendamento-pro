@@ -14,5 +14,9 @@ export const calculateHaversineDistance = (
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
     Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
+  const c = 2 * Math.asin(Math.sqrt(a));
+  const distance = R * c;
+  
+  // Return distance with 2 decimal places
+  return Number(distance.toFixed(2));
 };
