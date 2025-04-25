@@ -4,9 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { BasicInfoFields } from './workshop/BasicInfoFields';
-import { AddressFields } from './workshop/AddressFields';
-import { PriceFields } from './workshop/PriceFields';
+import { WorkshopFormSections } from './workshop/WorkshopFormSections';
 import { workshopSchema, WorkshopFormInput } from '@/schemas/workshopSchema';
 import { useWorkshopRegistration } from '@/hooks/useWorkshopRegistration';
 
@@ -32,10 +30,8 @@ const WorkshopRegistrationForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleRegistration)} className="space-y-4">
-        <BasicInfoFields form={form} />
-        <AddressFields form={form} />
-        <PriceFields form={form} />
+      <form onSubmit={form.handleSubmit(handleRegistration)} className="space-y-6">
+        <WorkshopFormSections form={form} />
         
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Cadastrando...' : 'Cadastrar Oficina'}
