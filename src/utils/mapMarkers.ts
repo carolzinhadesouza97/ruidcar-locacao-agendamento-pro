@@ -1,4 +1,3 @@
-
 import { Workshop } from '@/data/workshops';
 
 export const createWorkshopMarker = (
@@ -63,4 +62,44 @@ export const createUserLocationMarker = (
     },
     title: 'Sua localização',
   });
+};
+
+export const createRuidcarMarker = (
+  client: { nome: string; lat: number; lng: number },
+  map: google.maps.Map,
+  isNearest: boolean
+): google.maps.Marker => {
+  const marker = new google.maps.Marker({
+    position: { lat: client.lat, lng: client.lng },
+    map,
+    title: client.nome,
+    icon: {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${isNearest ? '#22c55e' : '#94a3b8'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 7v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
+          <rect width="20" height="5" x="2" y="3" rx="2"></rect>
+          <circle cx="12" cy="14" r="2"></circle>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(isNearest ? 40 : 32, isNearest ? 40 : 32),
+      anchor: new google.maps.Point(isNearest ? 20 : 16, isNearest ? 40 : 32),
+    },
+  });
+
+  const infoWindow = new google.maps.InfoWindow({
+    content: `
+      <div class="p-2">
+        <h3 class="font-semibold text-lg">${client.nome}</h3>
+        <p>Cliente RUIDCAR</p>
+        <p>Lat: ${client.lat.toFixed(6)}</p>
+        <p>Lng: ${client.lng.toFixed(6)}</p>
+      </div>
+    `,
+  });
+
+  marker.addListener('click', () => {
+    infoWindow.open(map, marker);
+  });
+
+  return marker;
 };
