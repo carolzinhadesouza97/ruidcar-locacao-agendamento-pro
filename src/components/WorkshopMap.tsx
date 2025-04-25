@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -7,6 +7,7 @@ import { oficinasRUIDCAR } from '@/data/oficinasRUIDCAR';
 import Map, { Marker, GeolocateControl } from 'react-map-gl';
 import { useMapbox, OficinaWithDistance } from '@/hooks/map/useMapbox';
 import MapInfoPopup from '@/components/map/MapInfoPopup';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
@@ -30,6 +31,15 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     viewport,
     setViewport
   } = useMapbox();
+
+  useEffect(() => {
+    // Force re-render when the component mounts to ensure the map loads correctly
+    const timer = setTimeout(() => {
+      setViewport({...viewport});
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleMarkerClick = (oficina: OficinaWithDistance) => {
     setSelectedOficina(oficina);
