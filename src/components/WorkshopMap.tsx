@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { oficinasRUIDCAR, OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
 import { calculateHaversineDistance } from '@/utils/distance';
 import { useGoogleMaps } from '@/hooks/useGoogleMaps';
+import { mapMarkers } from '@/utils/mapMarkers';
 
 // Extended interface to include distance property
 interface OficinaWithDistance extends OficinaRUIDCAR {
@@ -30,6 +31,20 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
+
+  // Função para limpar marcadores existentes
+  const clearMarkers = useCallback(() => {
+    if (markers.length > 0) {
+      markers.forEach(marker => marker.setMap(null));
+      setMarkers([]);
+    }
+    
+    if (infoWindow) {
+      infoWindow.close();
+    }
+  }, [markers, infoWindow]);
 
   const handleLocateOficinas = useCallback(() => {
     if (!isLoaded || !map) {
@@ -38,6 +53,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     }
     
     setIsLocating(true);
+    clearMarkers();
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -82,7 +98,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         setIsLocating(false);
       }
     );
-  }, [map, isLoaded]);
+  }, [map, isLoaded, clearMarkers]);
 
   const renderMap = () => {
     if (!isLoaded) {
@@ -111,63 +127,101 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     );
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
+    // Inicializa o mapa com configurações padrão
     if (map && isLoaded) {
-      // Clear previous markers
-      const existingMarkers = document.querySelectorAll('.gm-ui-hover-effect');
-      existingMarkers.forEach(marker => marker.parentElement?.parentElement?.parentElement?.remove());
-      
-      // Add user marker if available
-      if (userLocation) {
-        new google.maps.Marker({
-          position: userLocation,
-          map,
-          icon: {
-            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-            scaledSize: new google.maps.Size(40, 40),
+      map.setOptions({
+        center: { lat: -15.77972, lng: -47.92972 }, // Centro do Brasil
+        zoom: 5,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false,
+        styles: [
+          {
+            featureType: "poi",
+            elementType: "labels",
+            stylers: [{ visibility: "off" }],
           },
-          title: "Sua localização"
-        });
-      }
-
-      // Add oficinas markers
-      const oficinasToDisplay = nearestOficinas.length > 0 ? nearestOficinas : [];
-      
-      oficinasToDisplay.forEach((oficina) => {
-        const marker = new google.maps.Marker({
-          position: { lat: oficina.lat, lng: oficina.lng },
-          map,
-          icon: {
-            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            fillColor: '#FF6600',
-            fillOpacity: 1,
-            strokeColor: '#FFFFFF',
-            strokeWeight: 2,
-            scale: (selectedOficina?.nome === oficina.nome) ? 10 : 8,
-          },
-        });
-
-        marker.addListener('click', () => {
-          setSelectedOficina(oficina);
-          
-          const infoWindow = new google.maps.InfoWindow({
-            content: `
-              <div class="p-4">
-                <h3 class="font-semibold mb-2">${oficina.nome}</h3>
-                <p class="text-sm mb-1">${oficina.endereco}</p>
-                <p class="text-sm mb-2">${oficina.telefone}</p>
-                <p class="text-sm text-orange-500 font-semibold">
-                  ${oficina.distance.toFixed(2)} km de distância
-                </p>
-              </div>
-            `,
-          });
-          
-          infoWindow.open(map, marker);
-        });
+        ],
       });
     }
-  }, [map, isLoaded, userLocation, nearestOficinas, selectedOficina]);
+  }, [map, isLoaded]);
+
+  // Efeito para adicionar marcadores quando o mapa estiver carregado
+  useEffect(() => {
+    if (!map || !isLoaded) {
+      return;
+    }
+
+    clearMarkers();
+    
+    // Cria novo infoWindow para ser reutilizado
+    if (!infoWindow) {
+      setInfoWindow(new google.maps.InfoWindow());
+    }
+
+    const newMarkers: google.maps.Marker[] = [];
+    
+    // Add user marker if available
+    if (userLocation) {
+      const userMarker = new google.maps.Marker({
+        position: userLocation,
+        map,
+        icon: {
+          url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+          scaledSize: new google.maps.Size(40, 40),
+        },
+        title: "Sua localização"
+      });
+      newMarkers.push(userMarker);
+    }
+
+    // Add oficinas markers
+    const oficinasToDisplay = nearestOficinas.length > 0 ? nearestOficinas : [];
+    
+    oficinasToDisplay.forEach((oficina) => {
+      const marker = new google.maps.Marker({
+        position: { lat: oficina.lat, lng: oficina.lng },
+        map,
+        icon: {
+          path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+          fillColor: '#FF6600',
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+          scale: (selectedOficina?.nome === oficina.nome) ? 10 : 8,
+        },
+      });
+
+      marker.addListener('click', () => {
+        setSelectedOficina(oficina);
+        
+        if (infoWindow) {
+          infoWindow.close();
+          infoWindow.setContent(`
+            <div class="p-4">
+              <h3 class="font-semibold mb-2">${oficina.nome}</h3>
+              <p class="text-sm mb-1">${oficina.endereco}</p>
+              <p class="text-sm mb-2">${oficina.telefone}</p>
+              <p class="text-sm text-orange-500 font-semibold">
+                ${oficina.distance.toFixed(2)} km de distância
+              </p>
+            </div>
+          `);
+          infoWindow.open(map, marker);
+        }
+      });
+      
+      newMarkers.push(marker);
+    });
+
+    setMarkers(newMarkers);
+
+    return () => {
+      // Limpa marcadores quando o componente é desmontado ou dependências mudam
+      newMarkers.forEach(marker => marker.setMap(null));
+    };
+  }, [map, isLoaded, userLocation, nearestOficinas, selectedOficina, infoWindow, clearMarkers]);
 
   return renderMap();
 };
