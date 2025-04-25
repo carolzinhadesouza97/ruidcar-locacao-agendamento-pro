@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Workshop, WorkshopDTO } from '@/types/workshop';
@@ -10,11 +11,13 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Avoid TypeScript deep instantiation by using any for the query result
-      const { data, error } = await supabase
+      // Use a more explicit approach to avoid TypeScript deep instantiation errors
+      const response = await supabase
         .from('workshops')
         .select('*')
-        .eq('owner_id', userId) as { data: any[] | null, error: any };
+        .eq('owner_id', userId);
+      
+      const { data, error } = response;
       
       if (error) throw error;
       
