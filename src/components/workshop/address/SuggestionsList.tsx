@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { Store, Building, MapPin } from "lucide-react";
+import { AutocompletePrediction } from '@/hooks/useMapboxServices';
 
 interface SuggestionsListProps {
-  suggestions: google.maps.places.AutocompletePrediction[];
-  onSelectSuggestion: (suggestion: google.maps.places.AutocompletePrediction) => void;
+  suggestions: AutocompletePrediction[];
+  onSelectSuggestion: (suggestion: AutocompletePrediction) => void;
   suggestionsRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -13,7 +14,7 @@ export const SuggestionsList: React.FC<SuggestionsListProps> = ({
   onSelectSuggestion,
   suggestionsRef,
 }) => {
-  const getPlaceIcon = (suggestion: google.maps.places.AutocompletePrediction) => {
+  const getPlaceIcon = (suggestion: AutocompletePrediction) => {
     const types = suggestion.types || [];
     
     if (types.includes('establishment')) {

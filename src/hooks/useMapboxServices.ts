@@ -1,7 +1,19 @@
 
 import { useState } from 'react';
 
-// Define types for address components
+// Define types for mapbox results
+export interface AutocompletePrediction {
+  place_id: string;
+  description: string;
+  types?: string[];
+  matched_substrings: any[];
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+  terms: any[];
+}
+
 export interface AddressComponent {
   long_name: string;
   short_name: string;
@@ -21,12 +33,6 @@ export interface PlaceDetails {
       close: { day: number; time: string };
     }[];
   };
-}
-
-export interface AutocompletePrediction {
-  place_id: string;
-  description: string;
-  types?: string[];
 }
 
 // Simple mock for geocoding to replace Google Maps functionality
@@ -56,22 +62,40 @@ export const useMapboxServices = () => {
     // Simulate an API call delay
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    // Return mock suggestions
+    // Return mock suggestions with the required properties
     return [
       {
         place_id: 'place_id_1',
         description: `${input} - Location 1, Brazil`,
-        types: ['establishment']
+        types: ['establishment'],
+        matched_substrings: [],
+        structured_formatting: {
+          main_text: `${input} - Location 1`,
+          secondary_text: 'Brazil'
+        },
+        terms: [{ value: input }, { value: 'Brazil' }]
       },
       {
         place_id: 'place_id_2',
         description: `${input} - Location 2, Brazil`,
-        types: ['route']
+        types: ['route'],
+        matched_substrings: [],
+        structured_formatting: {
+          main_text: `${input} - Location 2`,
+          secondary_text: 'Brazil'
+        },
+        terms: [{ value: input }, { value: 'Brazil' }]
       },
       {
         place_id: 'place_id_3',
         description: `${input} - Location 3, Brazil`,
-        types: ['street_address']
+        types: ['street_address'],
+        matched_substrings: [],
+        structured_formatting: {
+          main_text: `${input} - Location 3`,
+          secondary_text: 'Brazil'
+        },
+        terms: [{ value: input }, { value: 'Brazil' }]
       }
     ];
   };

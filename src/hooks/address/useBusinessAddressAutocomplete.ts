@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
-import { useMapboxServices } from '@/hooks/useMapboxServices';
+import { useMapboxServices, AutocompletePrediction } from '@/hooks/useMapboxServices';
 import { UseFormReturn } from 'react-hook-form';
 
 interface BusinessData {
@@ -30,7 +30,7 @@ export const useBusinessAddressAutocomplete = ({
   const { isLoaded, getAddressSuggestions, getPlaceDetails } = useMapboxServices();
   
   const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState<Array<{place_id: string; description: string; types?: string[]}>>([]); 
+  const [suggestions, setSuggestions] = useState<AutocompletePrediction[]>([]); 
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -111,7 +111,7 @@ export const useBusinessAddressAutocomplete = ({
     fetchSuggestions(value);
   };
 
-  const handleSelectSuggestion = async (suggestion: {place_id: string; description: string; types?: string[]}) => {
+  const handleSelectSuggestion = async (suggestion: AutocompletePrediction) => {
     setIsLoading(true);
     try {
       const placeDetails = await getPlaceDetails(suggestion.place_id);

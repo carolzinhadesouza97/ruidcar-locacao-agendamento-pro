@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 import { WorkshopFormInput } from '@/schemas/workshopSchema';
-import { useMapboxServices } from '@/hooks/useMapboxServices';
+import { useMapboxServices, AutocompletePrediction } from '@/hooks/useMapboxServices';
 
 interface UseAddressAutocompleteProps {
   form: UseFormReturn<WorkshopFormInput>;
@@ -13,7 +13,7 @@ interface UseAddressAutocompleteProps {
 export const useAddressAutocomplete = ({ form, mapRef }: UseAddressAutocompleteProps) => {
   const { isLoaded, getAddressSuggestions, getPlaceDetails } = useMapboxServices();
   const [inputValue, setInputValue] = useState('');
-  const [suggestions, setSuggestions] = useState<Array<{place_id: string; description: string; types?: string[]}>>([]); 
+  const [suggestions, setSuggestions] = useState<AutocompletePrediction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [addressValidated, setAddressValidated] = useState(false);
@@ -62,7 +62,7 @@ export const useAddressAutocomplete = ({ form, mapRef }: UseAddressAutocompleteP
     fetchSuggestions(value);
   };
 
-  const handleSelectSuggestion = async (suggestion: {place_id: string; description: string; types?: string[]}) => {
+  const handleSelectSuggestion = async (suggestion: AutocompletePrediction) => {
     setIsLoading(true);
     try {
       console.log("Obtendo detalhes para o place_id:", suggestion.place_id);
