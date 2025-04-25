@@ -16,7 +16,8 @@ interface WorkshopMapProps {
   onUpdateNearestWorkshops?: (workshops: Workshop[]) => void;
 }
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzUzOTE1NGMyaW9iY25xeW8xcXoifQ.gOOrD0UKK0cPdoMkUbvvdQ';
+// Use import.meta.env instead of process.env for Vite
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzUzOTE1NGMyaW9iY25xeW8xcXoifQ.gOOrD0UKK0cPdoMkUbvvdQ';
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
