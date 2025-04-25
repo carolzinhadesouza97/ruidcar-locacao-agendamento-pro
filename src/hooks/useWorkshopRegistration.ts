@@ -12,27 +12,28 @@ export const useWorkshopRegistration = () => {
   const handleRegistration = async (data: WorkshopFormInput) => {
     try {
       setIsSubmitting(true);
+      
+      // Primeiro, tente geocodificar o endereço antes de criar o usuário
+      const formattedAddress = `${data.address}, ${data.city}, ${data.state}, ${data.zipCode}, Brasil`;
+      console.log("Tentando geocodificar endereço:", formattedAddress);
+      
+      let location: google.maps.LatLng;
+      try {
+        location = await geocodeAddress(formattedAddress);
+      } catch (geocodeError: any) {
+        console.error("Erro na geocodificação:", geocodeError);
+        toast.error(`Erro ao localizar endereço: ${geocodeError.message || 'Verifique se o endereço está correto'}`);
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Se chegou aqui, a geocodificação foi bem-sucedida, então prossiga com o cadastro
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
       });
 
       if (authError) throw authError;
-
-      const address = `${data.address}, ${data.city}, ${data.state}`;
-      const geocoder = new google.maps.Geocoder();
-      
-      const geocodeResult = await new Promise((resolve, reject) => {
-        geocoder.geocode({ address }, (results, status) => {
-          if (status === google.maps.GeocoderStatus.OK && results?.[0]) {
-            resolve(results[0].geometry.location);
-          } else {
-            reject(new Error('Falha ao geocodificar endereço'));
-          }
-        });
-      });
-
-      const location = geocodeResult as google.maps.LatLng;
 
       // Parse string values to numbers for price fields
       const pricePopular = parseFloat(data.pricePopular.replace(',', '.'));
@@ -84,6 +85,44 @@ export const useWorkshopRegistration = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Função auxiliar para geocodificar endereços com melhor tratamento de erros
+  const geocodeAddress = (address: string): Promise<google.maps.LatLng> => {
+    return new Promise((resolve, reject) => {
+      if (!window.google || !window.google.maps) {
+        reject(new Error('Google Maps API não está carregada'));
+        return;
+      }
+
+      const geocoder = new google.maps.Geocoder();
+      
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+          resolve(results[0].geometry.location);
+        } else {
+          let errorMessage = 'Falha ao geocodificar endereço';
+          
+          // Mapear códigos de status para mensagens mais amigáveis
+          switch (status) {
+            case google.maps.GeocoderStatus.ZERO_RESULTS:
+              errorMessage = 'Nenhum resultado encontrado para este endereço';
+              break;
+            case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
+              errorMessage = 'Limite de consultas à API do Google Maps excedido';
+              break;
+            case google.maps.GeocoderStatus.REQUEST_DENIED:
+              errorMessage = 'Requisição negada pelo serviço de geocodificação';
+              break;
+            case google.maps.GeocoderStatus.INVALID_REQUEST:
+              errorMessage = 'Requisição inválida de geocodificação';
+              break;
+          }
+          
+          reject(new Error(errorMessage));
+        }
+      });
+    });
   };
 
   return { handleRegistration, isSubmitting };
