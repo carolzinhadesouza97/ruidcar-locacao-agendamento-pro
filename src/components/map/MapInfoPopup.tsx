@@ -1,18 +1,22 @@
 
 import React from 'react';
-import { InfoWindow } from '@react-google-maps/api';
-import { OficinaWithDistance } from '@/hooks/map/useMapLocation';
+import { Popup } from 'react-map-gl';
+import { OficinaWithDistance } from '@/hooks/map/useMapbox';
 
-interface MapInfoWindowProps {
+interface MapInfoPopupProps {
   oficina: OficinaWithDistance;
   onClose: () => void;
 }
 
-const MapInfoWindow: React.FC<MapInfoWindowProps> = ({ oficina, onClose }) => {
+const MapInfoPopup: React.FC<MapInfoPopupProps> = ({ oficina, onClose }) => {
   return (
-    <InfoWindow
-      position={{ lat: oficina.lat, lng: oficina.lng }}
-      onCloseClick={onClose}
+    <Popup
+      longitude={oficina.lng}
+      latitude={oficina.lat}
+      onClose={onClose}
+      closeButton={true}
+      closeOnClick={false}
+      anchor="bottom"
     >
       <div className="p-4 max-w-xs">
         <h3 className="font-semibold mb-2">{oficina.nome}</h3>
@@ -22,8 +26,8 @@ const MapInfoWindow: React.FC<MapInfoWindowProps> = ({ oficina, onClose }) => {
           {oficina.distance.toFixed(2)} km de distância
         </p>
       </div>
-    </InfoWindow>
+    </Popup>
   );
 };
 
-export default MapInfoWindow;
+export default MapInfoPopup;
