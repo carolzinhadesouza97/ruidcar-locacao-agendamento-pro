@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,12 +41,28 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const handleLogin = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
       if (error) throw error;
+
+      // Check if user is already logged in
+      if (!authData.user) {
+        throw new Error('Erro ao fazer login');
+      }
+
+      // Update user metadata with role if not present
+      if (!authData.user.user_metadata?.role) {
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: { role: 'oficina' }
+        });
+
+        if (updateError) {
+          console.warn('Não foi possível definir a função do usuário', updateError);
+        }
+      }
 
       toast.success('Login realizado com sucesso!');
       onClose();
@@ -69,6 +86,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            // Set role metadata for Google signin
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
       

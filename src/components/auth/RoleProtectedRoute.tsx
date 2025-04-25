@@ -35,18 +35,24 @@ const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
     return <>{children}</>;
   }
 
+  console.log('User role:', user.role);
+  console.log('Required role:', requiredRole);
+
   // If requiredRole is an array, check if user has any of the roles
   if (Array.isArray(requiredRole)) {
     if (!user.role || !requiredRole.includes(user.role)) {
+      console.log('Access denied: User does not have any of the required roles');
       return <Navigate to="/unauthorized" />;
     }
   } 
   // If requiredRole is a single role, check if user has that role
   else if (!user.role || user.role !== requiredRole) {
+    console.log('Access denied: User does not have the required role');
     return <Navigate to="/unauthorized" />;
   }
 
   // Allow access
+  console.log('Access granted');
   return <>{children}</>;
 };
 

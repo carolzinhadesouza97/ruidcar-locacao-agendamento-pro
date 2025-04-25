@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,20 +55,23 @@ const RegisterOwner = () => {
   const handleRegister = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
+      // Define user metadata with name and role
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           data: {
             name: data.name,
+            role: 'oficina', // Explicitly set the role to 'oficina'
           },
+          redirectTo: `${window.location.origin}/dashboard`,
         }
       });
       
       if (error) throw error;
       
       toast.success('Cadastro realizado com sucesso! Você será redirecionado para o dashboard.');
-      setTimeout(() => navigate('/dashboard'), 1500);
+      // We'll handle the redirect via auth state change, no need for setTimeout
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
       let errorMessage = 'Erro ao cadastrar';
@@ -91,6 +93,11 @@ const RegisterOwner = () => {
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            // Add metadata to set role during Google signin
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
       
