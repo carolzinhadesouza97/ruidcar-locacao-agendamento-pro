@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 
@@ -33,7 +32,8 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
       // Define a função de callback global
       const callbackName = 'googleMapsInitCallback_' + Math.random().toString(36).substr(2, 9);
       
-      window[callbackName as keyof typeof window] = () => {
+      // Usar window em vez de globalThis
+      window[callbackName as keyof typeof window] = function() {
         setIsLoaded(true);
         
         if (window.google.maps.places) {
