@@ -6,55 +6,42 @@ import { toast } from 'sonner';
 import { WorkshopModal } from '@/components/workshop/WorkshopModal';
 import { Json } from '@/integrations/supabase/types';
 
-// Separate type for OpenHours to simplify the Workshop interface
+// Base types for data handling
 type OpenHours = Record<string, string>;
 
-// Helper function to convert Json to OpenHours
-const convertOpenHours = (hours: Json): OpenHours => {
-  if (typeof hours === 'string') {
-    try {
-      return JSON.parse(hours);
-    } catch {
-      return {};
-    }
-  }
-  if (Array.isArray(hours)) {
-    return Object.fromEntries(hours as [string, string][]);
-  }
-  if (typeof hours === 'object' && hours !== null) {
-    return Object.entries(hours).reduce((acc, [key, value]) => ({
-      ...acc,
-      [key]: String(value)
-    }), {} as OpenHours);
-  }
-  return {};
-};
-
-// Base Workshop interface with common properties
-interface WorkshopBase {
+interface WorkshopDTO {
   id: string;
   name: string;
   address: string;
   city: string;
   state: string;
-  zip_code?: string;
-  phone?: string;
-  website?: string;
-  price_popular?: number;
-  price_medium?: number;
-  price_imported?: number;
-  rating?: number;
-  approved?: boolean;
-  created_at?: string;
-  email?: string;
-  lat?: number;
-  lng?: number;
+  zip_code: string;
+  phone: string;
+  email: string;
+  lat: number;
+  lng: number;
+  open_hours: Json;
+  price_popular: number;
+  price_medium: number;
+  price_imported: number;
+  approved: boolean | null;
+  created_at: string | null;
+  website?: string | null;
 }
 
-// Extended Workshop interface with OpenHours
-interface Workshop extends WorkshopBase {
+interface Workshop extends Omit<WorkshopDTO, 'open_hours' | 'website'> {
   open_hours: OpenHours;
+  website: string;
 }
+
+// Helper function to convert DTO to Workshop
+const convertDTOToWorkshop = (dto: WorkshopDTO): Workshop => ({
+  ...dto,
+  open_hours: typeof dto.open_hours === 'string'
+    ? JSON.parse(dto.open_hours) as OpenHours
+    : (dto.open_hours as OpenHours),
+  website: dto.website ?? '',
+});
 
 const Dashboard = () => {
   const [userId, setUserId] = useState<string>('');
@@ -71,16 +58,6 @@ const Dashboard = () => {
         if (user) {
           setUserId(user.id);
           
-          // Define a generic type for raw workshop data that doesn't need to match exactly
-          type RawWorkshopData = {
-            id: string;
-            name: string;
-            address: string;
-            city: string;
-            state: string;
-            [key: string]: any; // Allow any additional properties
-          };
-          
           const { data, error } = await supabase
             .from('workshops')
             .select('*')
@@ -88,30 +65,8 @@ const Dashboard = () => {
             
           if (error) throw error;
           
-          // Cast data to the generic type first
-          const rawData = data as unknown as RawWorkshopData[];
-          
-          // Then map to our defined Workshop type
-          const typedWorkshops: Workshop[] = (rawData || []).map(item => ({
-            id: item.id,
-            name: item.name,
-            address: item.address,
-            city: item.city,
-            state: item.state,
-            zip_code: item.zip_code,
-            phone: item.phone || undefined,
-            website: item.website || undefined,
-            price_popular: item.price_popular,
-            price_medium: item.price_medium,
-            price_imported: item.price_imported,
-            rating: item.rating,
-            approved: item.approved,
-            created_at: item.created_at,
-            email: item.email,
-            lat: item.lat,
-            lng: item.lng,
-            open_hours: convertOpenHours(item.open_hours)
-          }));
+          const rawData = (data ?? []) as WorkshopDTO[];
+          const typedWorkshops = rawData.map(convertDTOToWorkshop);
           
           setWorkshops(typedWorkshops);
         }
@@ -157,7 +112,6 @@ const Dashboard = () => {
   
   const handleWorkshopSaved = async () => {
     try {
-      // Use a simple any type to avoid excessive type instantiation
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
@@ -165,30 +119,8 @@ const Dashboard = () => {
         
       if (error) throw error;
       
-      // Explicitly use any[] to prevent deep type instantiation
-      const rawData: any[] = data || [];
-      
-      // Map to our Workshop interface with explicit types
-      const typedWorkshops: Workshop[] = rawData.map(item => ({
-        id: item.id,
-        name: item.name,
-        address: item.address,
-        city: item.city,
-        state: item.state,
-        zip_code: item.zip_code,
-        phone: item.phone || undefined,
-        website: item.website || undefined,
-        price_popular: item.price_popular,
-        price_medium: item.price_medium,
-        price_imported: item.price_imported,
-        rating: item.rating,
-        approved: item.approved,
-        created_at: item.created_at,
-        email: item.email,
-        lat: item.lat,
-        lng: item.lng,
-        open_hours: convertOpenHours(item.open_hours)
-      }));
+      const rawData = (data ?? []) as WorkshopDTO[];
+      const typedWorkshops = rawData.map(convertDTOToWorkshop);
       
       setWorkshops(typedWorkshops);
       setIsModalOpen(false);
