@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Workshop, WorkshopDTO } from '@/types/workshop';
 import { convertDTOToWorkshop } from '@/utils/workshopConverters';
 import { toast } from 'sonner';
+import { PostgrestResponse } from '@supabase/supabase-js';
 
 export const useWorkshops = (userId: string) => {
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
@@ -11,19 +12,15 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Use a more direct approach without chaining to avoid deep type instantiation
-      const result = await supabase
-        .from('workshops')
+      const result: PostgrestResponse<WorkshopDTO> = await supabase
+        .from<WorkshopDTO>('workshops')
         .select('*')
         .eq('owner_id', userId);
       
       if (result.error) throw result.error;
       
-      // Safely handle the response data with explicit typing
       const workshopsData = result.data || [];
-      const typedWorkshops = workshopsData.map(item => 
-        convertDTOToWorkshop(item as WorkshopDTO)
-      );
+      const typedWorkshops = workshopsData.map(convertDTOToWorkshop);
       
       setWorkshops(typedWorkshops);
     } catch (error: any) {
@@ -37,8 +34,8 @@ export const useWorkshops = (userId: string) => {
   const deleteWorkshop = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir esta oficina?')) {
       try {
-        const { error } = await supabase
-          .from('workshops')
+        const { error }: PostgrestResponse<WorkshopDTO> = await supabase
+          .from<WorkshopDTO>('workshops')
           .delete()
           .eq('id', id);
           
