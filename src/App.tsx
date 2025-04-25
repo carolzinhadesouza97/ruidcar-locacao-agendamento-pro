@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,9 +31,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/register-workshop" element={
-              <RoleProtectedRoute requiredRole={['admin', 'oficina']}>
-                <RegisterWorkshop />
-              </RoleProtectedRoute>
+              <RegisterWorkshop />
             } />
             <Route path="/dashboard" element={
               <PrivateRoute>

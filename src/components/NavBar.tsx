@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { User } from 'lucide-react';
+import { User, Building, PlusCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,15 +58,35 @@ const NavBar: React.FC = () => {
                 Acessar Dashboard
               </Button>
             ) : (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-brand-gray"
-                onClick={() => setIsLoginModalOpen(true)}
-              >
-                <User className="w-4 h-4 mr-1" /> 
-                Entrar como Oficina
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-brand-gray"
+                  onClick={() => navigate('/register-workshop')}
+                >
+                  <Building className="w-4 h-4 mr-1" /> 
+                  Cadastrar Oficina
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-brand-gray"
+                  onClick={() => navigate('/register-owner')}
+                >
+                  <PlusCircle className="w-4 h-4 mr-1" /> 
+                  Cadastrar Usuário
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-brand-gray"
+                  onClick={() => setIsLoginModalOpen(true)}
+                >
+                  <User className="w-4 h-4 mr-1" /> 
+                  Entrar
+                </Button>
+              </div>
             )
           )}
 
