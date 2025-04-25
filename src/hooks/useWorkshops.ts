@@ -18,6 +18,7 @@ export const useWorkshops = (userId: string) => {
         
       if (error) throw error;
       
+      // Explicitly type the data as WorkshopDTO[] to avoid deep type inference
       const rawData = (data ?? []) as WorkshopDTO[];
       const typedWorkshops = rawData.map(convertDTOToWorkshop);
       
