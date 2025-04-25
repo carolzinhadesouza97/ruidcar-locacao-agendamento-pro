@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
-import { Workshop } from '@/types/workshop';
-import { Workshop as DataWorkshop } from '@/data/workshops';
+import { Workshop } from '@/data/workshops';
 import { calculateHaversineDistance } from '@/utils/distance';
+import { toast } from 'sonner';
 
 interface Location {
   lat: number;
@@ -11,10 +11,10 @@ interface Location {
 
 export const useWorkshopLocator = () => {
   const [userLocation, setUserLocation] = useState<Location | null>(null);
-  const [nearestWorkshops, setNearestWorkshops] = useState<DataWorkshop[]>([]);
+  const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
   const [isLocating, setIsLocating] = useState(false);
 
-  const findNearestWorkshops = (workshops: DataWorkshop[], location: Location): DataWorkshop[] => {
+  const findNearestWorkshops = (workshops: Workshop[], location: Location): Workshop[] => {
     return workshops
       .map(workshop => ({
         ...workshop,
@@ -29,7 +29,7 @@ export const useWorkshopLocator = () => {
       .slice(0, 5);
   };
 
-  const locateWorkshops = (workshops: DataWorkshop[], map: google.maps.Map | null) => {
+  const locateWorkshops = (workshops: Workshop[], map: google.maps.Map | null) => {
     if (!workshops || workshops.length === 0) {
       return;
     }
@@ -53,9 +53,11 @@ export const useWorkshopLocator = () => {
         }
         
         setIsLocating(false);
+        toast.success('Localização encontrada');
       },
       (error) => {
         console.error('Erro ao obter localização:', error);
+        toast.error('Não foi possível obter sua localização');
         setIsLocating(false);
       }
     );
