@@ -1,4 +1,3 @@
-
 export interface OficinaRUIDCAR {
   nome: string;
   lat: number;
@@ -9,7 +8,7 @@ export interface OficinaRUIDCAR {
 
 export const oficinasRUIDCAR: OficinaRUIDCAR[] = [
   { nome: '2W CENTRO AUTOMOTIVO', lat: -16.81152, lng: -49.91542, endereco: 'RUA 7 SETEMBRO, QD13 L4, Vila Aurora, Palmeiras de Goiás, GO', telefone: '(64) 99255-2006' },
-  { nome: 'A.K. Auto Center', lat: -23.7058, lng: -46.701941, endereco: 'R. Américo Brasiliense 1561, Chácara Santo Antônio, São Paulo, SP', telefone: '(11) 5184-0935' },
+  { nome: 'A.K. Auto Center - Oficina Mecânica Multimarcas', lat: -23.7058, lng: -46.701941, endereco: 'R. Américo Brasiliense 1561, Chácara Santo Antônio, São Paulo, SP', telefone: '(11) 5184-0935' },
   { nome: 'ACB Auto Service e Engenharia Mecânica', lat: -3.7847112, lng: -38.5897099, endereco: 'Av. José Bastos 2577, Damas, Fortaleza, CE', telefone: '(85) 3283-1244' },
   { nome: 'ACS Pneus e Rodas', lat: -15.7647979, lng: -47.8914513, endereco: 'Qn 122 Conjunto 8, lote 1 - Loja 9, Samambaia Sul, Brasília, DF', telefone: '(61) 99241-2640' },
   { nome: 'AS Suspensōes', lat: -27.00200, lng: -48.63471, endereco: 'R. 2950 906, Centro, Balneário Camboriú, SC', telefone: '47 3366-8191' },
@@ -108,5 +107,4 @@ export const oficinasRUIDCAR: OficinaRUIDCAR[] = [
   { nome: 'Fator Premium', lat: -8.03543, lng: -34.94121, endereco: 'Av. Professor Joaquim Cavalcanti 250 - 262 e 270, Caxangá, Recife, PE', telefone: '81 99791-2653' },
   { nome: 'Faust Imports/ Mecanica Ellite', lat: -26.86987, lng: -49.09061, endereco: 'R. 5 de Outubro 345, Salto Norte, Blumenau, SC', telefone: '47 3378-4291' },
   { nome: 'Futura Radiadores E Baterias', lat: -29.75967, lng: -50.06900, endereco: 'R. Dr. Maia 4450, Centro, Uruguaiana, RS', telefone: '55 3402-0853' },
-  { nome: 'GT Centro Automotivo', lat: -21.70273, lng: -43.42668, endereco: 'R. Gen. Almerindo da Silva Gomes 341, Nova Era, Juiz de Fora, MG', telefone: '32 3225-9994' }
-];
+  { nome: 'GT Centro Automotivo', lat: -21.70273, lng: -43.42668, endereco: 'R. Gen. Almerindo da Silva Gomes 341, Nova Era, Juiz de Fora, MG',

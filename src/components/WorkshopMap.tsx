@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -16,7 +16,7 @@ interface WorkshopMapProps {
   onUpdateNearestWorkshops?: (workshops: Workshop[]) => void;
 }
 
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzUzOTE1NGMyaW9iY25xeW8xcXoifQ.gOOrD0UKK0cPdoMkUbvvdQ';
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzUzOTE1NGMyaW9iY25xeW8xcXoifQ.gOOrD0UKK0cPdoMkUbvvdQ';
 
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
@@ -24,8 +24,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   workshops,
   onUpdateNearestWorkshops 
 }) => {
-  const mapRef = useRef(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const mapRef = useRef<any>(null);
   const [selectedOficina, setSelectedOficina] = useState<OficinaWithDistance | null>(null);
   
   const {
@@ -38,6 +37,47 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     setViewport
   } = useMapbox();
 
+  // Otimização: Memorize os markers para evitar re-renderizações desnecessárias
+  const renderMarkers = useCallback(() => {
+    return nearestOficinas.map((oficina) => (
+      <Marker
+        key={`${oficina.nome}-${oficina.lat}-${oficina.lng}`}
+        longitude={oficina.lng}
+        latitude={oficina.lat}
+        onClick={(e) => {
+          e.originalEvent.stopPropagation();
+          setSelectedOficina(oficina);
+          setViewport({
+            ...viewport,
+            latitude: oficina.lat,
+            longitude: oficina.lng,
+            zoom: 15,
+            transitionDuration: 500
+          });
+        }}
+      >
+        <div className="cursor-pointer transform hover:scale-110 transition-transform">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="#22c55e"
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="drop-shadow-lg"
+          >
+            <path d="M19 7v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
+            <rect width="20" height="5" x="2" y="3" rx="2"></rect>
+            <circle cx="12" cy="14" r="2"></circle>
+          </svg>
+        </div>
+      </Marker>
+    ));
+  }, [nearestOficinas, viewport]);
+
   // Update parent component with nearest workshops when they change
   useEffect(() => {
     if (nearestWorkshops && nearestWorkshops.length > 0 && onUpdateNearestWorkshops) {
@@ -45,36 +85,9 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     }
   }, [nearestWorkshops, onUpdateNearestWorkshops]);
 
-  // Force rerender map after component mounts to fix blank map issue
-  useEffect(() => {
-    // Give a little time for the component to fully mount
-    const timer = setTimeout(() => {
-      console.log("Initializing map with viewport:", viewport);
-      setViewport(prev => ({
-        ...prev,
-        latitude: prev.latitude || -15.77972,
-        longitude: prev.longitude || -47.92972,
-        zoom: prev.zoom || 4
-      }));
-      setMapLoaded(true);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleMarkerClick = (oficina: OficinaWithDistance) => {
-    setSelectedOficina(oficina);
-    
-    setViewport({
-      latitude: oficina.lat,
-      longitude: oficina.lng,
-      zoom: 15
-    });
-  };
-
-  const handleFindNearestWorkshops = () => {
+  const handleFindNearestWorkshops = useCallback(() => {
     handleLocateOficinas(oficinasRUIDCAR, workshops);
-  };
+  }, [handleLocateOficinas, workshops]);
 
   return (
     <div className="h-full w-full relative">
@@ -96,18 +109,24 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         mapStyle="mapbox://styles/mapbox/streets-v11"
         mapboxAccessToken={MAPBOX_TOKEN}
         onMove={evt => setViewport(evt.viewState)}
-        attributionControl={true}
-        initialViewState={{
-          latitude: -15.77972,
-          longitude: -47.92972,
-          zoom: 4
-        }}
+        attributionControl={false}
+        reuseMaps
+        maxZoom={16}
+        minZoom={2}
       >
-        <NavigationControl position="top-left" />
+        <NavigationControl position="top-left" visualizePitch={true} />
         <GeolocateControl
-          positionOptions={{ enableHighAccuracy: true }}
-          trackUserLocation={true}
           position="top-left"
+          trackUserLocation
+          showUserLocation
+          onGeolocate={(e) => {
+            setViewport({
+              ...viewport,
+              latitude: e.coords.latitude,
+              longitude: e.coords.longitude,
+              zoom: 13
+            });
+          }}
         />
         
         {userLocation && (
@@ -119,60 +138,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           </Marker>
         )}
         
-        {nearestOficinas.length > 0 ? 
-          nearestOficinas.map((oficina) => (
-            <Marker
-              key={oficina.nome}
-              longitude={oficina.lng}
-              latitude={oficina.lat}
-              onClick={() => handleMarkerClick(oficina)}
-            >
-              <div className="cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="#FF6600"
-                  stroke="#FFFFFF"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 7v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
-                  <rect width="20" height="5" x="2" y="3" rx="2"></rect>
-                  <circle cx="12" cy="14" r="2"></circle>
-                </svg>
-              </div>
-            </Marker>
-          ))
-        : 
-          oficinasRUIDCAR.slice(0, 10).map((oficina) => (
-            <Marker
-              key={oficina.nome}
-              longitude={oficina.lng}
-              latitude={oficina.lat}
-            >
-              <div className="cursor-pointer opacity-50">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="#94a3b8"
-                  stroke="#FFFFFF"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 7v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
-                  <rect width="20" height="5" x="2" y="3" rx="2"></rect>
-                  <circle cx="12" cy="14" r="2"></circle>
-                </svg>
-              </div>
-            </Marker>
-          ))
-        }
+        {renderMarkers()}
         
         {selectedOficina && (
           <MapInfoPopup
