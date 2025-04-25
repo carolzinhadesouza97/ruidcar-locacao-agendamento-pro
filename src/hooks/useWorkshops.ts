@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Workshop, WorkshopDTO } from '@/types/workshop';
@@ -11,24 +10,23 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Cast to any to avoid TypeScript deep instantiation error
+      // Use type assertion with generic to handle Supabase type complexities
       const { data, error } = await supabase
-        .from('workshops') as any
+        .from('workshops')
         .select(`
           id, name, address, city, state, zip_code,
           phone, email, lat, lng, open_hours,
           price_popular, price_medium, price_imported,
           approved, created_at, website
         `)
-        .eq('owner_id', userId);
+        .eq('owner_id', userId) as { data: any[] | null, error: any };
       
       if (error) throw error;
       
       // Safely handle the response data
-      const workshopsData = data as any[];
-      const typedWorkshops = Array.isArray(workshopsData) 
-        ? workshopsData.map(item => convertDTOToWorkshop(item as WorkshopDTO))
-        : [];
+      const workshopsData = data || [];
+      const typedWorkshops = workshopsData
+        .map(item => convertDTOToWorkshop(item as WorkshopDTO));
         
       setWorkshops(typedWorkshops);
     } catch (error: any) {
