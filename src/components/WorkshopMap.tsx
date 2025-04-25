@@ -13,6 +13,7 @@ interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
   workshops: Workshop[];
   onSchedule: () => void;
+  onUpdateNearestWorkshops?: (workshops: Workshop[]) => void;
 }
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzUzOTE1NGMyaW9iY25xeW8xcXoifQ.gOOrD0UKK0cPdoMkUbvvdQ';
@@ -20,7 +21,8 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2Fyb2x6aW5oYWRlc291emEyMDExIiwiYSI6ImNtOXhhNzU
 const WorkshopMap: React.FC<WorkshopMapProps> = ({ 
   onSelectWorkshop,
   onSchedule,
-  workshops 
+  workshops,
+  onUpdateNearestWorkshops 
 }) => {
   const mapRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -29,11 +31,19 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   const {
     userLocation,
     nearestOficinas,
+    nearestWorkshops,
     isLocating,
     handleLocateOficinas,
     viewport,
     setViewport
   } = useMapbox();
+
+  // Update parent component with nearest workshops when they change
+  useEffect(() => {
+    if (nearestWorkshops && nearestWorkshops.length > 0 && onUpdateNearestWorkshops) {
+      onUpdateNearestWorkshops(nearestWorkshops);
+    }
+  }, [nearestWorkshops, onUpdateNearestWorkshops]);
 
   // Force rerender map after component mounts to fix blank map issue
   useEffect(() => {
@@ -62,11 +72,15 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     });
   };
 
+  const handleFindNearestWorkshops = () => {
+    handleLocateOficinas(oficinasRUIDCAR, workshops);
+  };
+
   return (
     <div className="h-full w-full relative">
       <div className="absolute top-4 right-4 z-10">
         <Button 
-          onClick={() => handleLocateOficinas(oficinasRUIDCAR)}
+          onClick={handleFindNearestWorkshops}
           className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
           disabled={isLocating}
         >

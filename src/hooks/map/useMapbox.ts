@@ -3,9 +3,14 @@ import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
 import { calculateHaversineDistance } from '@/utils/distance';
+import { Workshop } from '@/data/workshops';
 
 export interface OficinaWithDistance extends OficinaRUIDCAR {
   distance: number;
+}
+
+export interface WorkshopWithDistance extends Workshop {
+  distance: string;
 }
 
 // Coordenadas padrão para o Brasil (centro aproximado)
@@ -20,6 +25,7 @@ export const useMapbox = () => {
   const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [isLocating, setIsLocating] = useState(false);
   const [viewport, setViewport] = useState(BRAZIL_CENTER);
+  const [nearestWorkshops, setNearestWorkshops] = useState<WorkshopWithDistance[]>([]);
 
   // Inicializa o mapa garantindo que os valores iniciais estão corretos
   useEffect(() => {
@@ -38,7 +44,7 @@ export const useMapbox = () => {
     return userLoc;
   }, []);
 
-  const handleLocateOficinas = useCallback((oficinas: OficinaRUIDCAR[]) => {
+  const handleLocateOficinas = useCallback((oficinas: OficinaRUIDCAR[], workshops: Workshop[]) => {
     setIsLocating(true);
     
     navigator.geolocation.getCurrentPosition(
@@ -50,6 +56,7 @@ export const useMapbox = () => {
           return;
         }
         
+        // Process oficinas
         const oficinasWithDistance: OficinaWithDistance[] = oficinas.map(oficina => ({
           ...oficina,
           distance: calculateHaversineDistance(
@@ -66,8 +73,30 @@ export const useMapbox = () => {
 
         setNearestOficinas(nearest);
         
-        if (nearest.length > 0) {
-          // Update viewport to show user and nearest oficinas
+        // Process workshops and create a parallel list with distances
+        const workshopsWithDistance: WorkshopWithDistance[] = workshops.map(workshop => {
+          const distance = calculateHaversineDistance(
+            userLoc.lat,
+            userLoc.lng,
+            workshop.lat,
+            workshop.lng
+          );
+          
+          return {
+            ...workshop,
+            distance: distance.toFixed(2) // Format as string with 2 decimal places
+          };
+        });
+        
+        // Get 3-5 nearest workshops
+        const nearestShops = workshopsWithDistance
+          .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+          .slice(0, 5);
+          
+        setNearestWorkshops(nearestShops);
+        
+        if (nearest.length > 0 || nearestShops.length > 0) {
+          // Update viewport to show user and nearest locations
           setViewport({
             latitude: userLoc.lat,
             longitude: userLoc.lng,
@@ -94,6 +123,7 @@ export const useMapbox = () => {
   return {
     userLocation,
     nearestOficinas,
+    nearestWorkshops,
     isLocating,
     handleLocateOficinas,
     viewport,

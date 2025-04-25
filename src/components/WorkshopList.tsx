@@ -72,7 +72,10 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
             <Button 
               size="sm" 
               variant="ghost" 
-              onClick={() => onSelectWorkshop(workshop)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectWorkshop(workshop);
+              }}
               className="text-brand-orange hover:text-brand-orange hover:bg-brand-orange/10"
             >
               Agendar <ArrowRight className="ml-1 w-3 h-3" />
@@ -86,7 +89,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
           <CardContent className="pt-6 pb-6 flex flex-col items-center justify-center">
             <MapPin className="w-8 h-8 text-muted-foreground mb-2" />
             <p className="text-center text-muted-foreground">
-              Use o botão "Oficinas próximas" no mapa para encontrar oficinas perto de você
+              Use o botão "Localizar Oficinas" no mapa para encontrar oficinas perto de você
             </p>
           </CardContent>
         </Card>

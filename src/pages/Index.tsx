@@ -34,6 +34,8 @@ const Index = () => {
   // Handle updating the workshops list (e.g., when finding nearest)
   const handleUpdateWorkshops = (workshops: Workshop[]) => {
     setWorkshopsToDisplay(workshops);
+    setIsSheetOpen(true); // Open the sheet on mobile when workshops are found
+    setCurrentView("list"); // Ensure we're showing the list view
   };
 
   // Handle going back to the list view
@@ -117,6 +119,7 @@ const Index = () => {
               onSelectWorkshop={handleSelectWorkshop}
               workshops={workshopsData}
               onSchedule={handleGoToSchedule}
+              onUpdateNearestWorkshops={handleUpdateWorkshops}
             />
             
             {/* Mobile trigger for the panel */}
