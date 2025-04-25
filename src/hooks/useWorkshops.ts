@@ -11,15 +11,19 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      const { data, error } = await supabase
+      // Use type assertion with unknown as an intermediate step to break the deep inference
+      const response = await supabase
         .from('workshops')
         .select('*')
-        .eq('owner_id', userId);
+        .eq('owner_id', userId) as unknown;
+      
+      // Now cast to a simpler type structure
+      const { data, error } = response as { data: WorkshopDTO[] | null, error: any };
         
       if (error) throw error;
       
-      // Explicitly type the data as WorkshopDTO[] to avoid deep type inference
-      const rawData = (data ?? []) as WorkshopDTO[];
+      // Process the data with our converter
+      const rawData = (data ?? []);
       const typedWorkshops = rawData.map(convertDTOToWorkshop);
       
       setWorkshops(typedWorkshops);
