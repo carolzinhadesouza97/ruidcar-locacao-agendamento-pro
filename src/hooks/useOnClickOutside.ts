@@ -9,7 +9,7 @@ export function useOnClickOutside<T extends HTMLElement = HTMLElement>(
     const listener = (event: MouseEvent | TouchEvent) => {
       const el = ref?.current;
       
-      // Não faz nada se o clique for dentro do elemento
+      // Não faz nada se o clique for dentro do elemento ou se o ref for null
       if (!el || el.contains(event.target as Node)) {
         return;
       }

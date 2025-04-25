@@ -29,12 +29,29 @@ export const useWorkshopRegistration = () => {
       
       let location: google.maps.LatLng;
       try {
+        // Fazemos três tentativas de geocodificação
+        toast.info('Validando localização...');
+        
         location = await geocodeAddress(formattedAddress);
+        console.log("Geocodificação bem-sucedida:", location.lat(), location.lng());
       } catch (geocodeError: any) {
         console.error("Erro na geocodificação:", geocodeError);
-        toast.error(`Erro ao localizar endereço: ${geocodeError.message || 'Verifique se o endereço está correto'}`);
-        setIsSubmitting(false);
-        return;
+        
+        // Segunda tentativa: apenas cidade e estado
+        try {
+          const simpleAddress = `${data.city}, ${data.state}, Brasil`;
+          console.log("Tentando geocodificar com endereço simplificado:", simpleAddress);
+          
+          location = await geocodeAddress(simpleAddress);
+          console.log("Geocodificação simplificada bem-sucedida:", location.lat(), location.lng());
+          
+          // Aviso de que estamos usando localização aproximada
+          toast.warning('Usando localização aproximada baseada na cidade. Para melhor precisão, selecione um endereço da lista de sugestões.');
+        } catch (secondError) {
+          toast.error(`Erro ao localizar endereço: ${geocodeError.message || 'Verifique se o endereço está correto'}`);
+          setIsSubmitting(false);
+          return;
+        }
       }
       
       // Se chegou aqui, a geocodificação foi bem-sucedida, então prossiga com o cadastro
@@ -43,7 +60,9 @@ export const useWorkshopRegistration = () => {
         password: data.password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        throw authError;
+      }
 
       // Parse string values to numbers for price fields
       const pricePopular = parseFloat(data.pricePopular.replace(',', '.'));
@@ -74,7 +93,9 @@ export const useWorkshopRegistration = () => {
         .select()
         .single();
 
-      if (workshopError) throw workshopError;
+      if (workshopError) {
+        throw workshopError;
+      }
 
       const { error: linkError } = await supabase
         .from('workshop_accounts')
@@ -85,7 +106,9 @@ export const useWorkshopRegistration = () => {
           workshop_id: workshopData.id,
         });
 
-      if (linkError) throw linkError;
+      if (linkError) {
+        throw linkError;
+      }
 
       toast.success('Oficina cadastrada com sucesso! Aguarde a aprovação.');
       navigate('/');

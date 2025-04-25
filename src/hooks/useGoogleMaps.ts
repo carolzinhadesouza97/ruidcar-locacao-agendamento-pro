@@ -30,7 +30,10 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
 
     // Se o script não estiver carregado, carregue-o
     if (!googleMapScript.current) {
-      window.initMap = () => {
+      // Define a função de callback global
+      const callbackName = 'googleMapsInitCallback_' + Math.random().toString(36).substr(2, 9);
+      
+      window[callbackName as keyof typeof window] = () => {
         setIsLoaded(true);
         
         if (window.google.maps.places) {
@@ -40,16 +43,20 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
         if (mapRef.current) {
           initializeMap();
         }
+        
+        // Limpar a função global após o uso
+        delete window[callbackName as keyof typeof window];
       };
 
       // Adicione um manipulador de erro ao script
       const handleScriptError = () => {
         toast.error("Não foi possível carregar o Google Maps. Verifique sua conexão.");
         console.error("Falha ao carregar a API do Google Maps");
+        delete window[callbackName as keyof typeof window];
       };
 
       googleMapScript.current = document.createElement('script');
-      googleMapScript.current.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac&libraries=places,geometry&callback=initMap`;
+      googleMapScript.current.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC4k4JCq9xSBL7gWhN_v7Rf6ps0BQlQbac&libraries=places,geometry&callback=${callbackName}`;
       googleMapScript.current.async = true;
       googleMapScript.current.defer = true;
       googleMapScript.current.onerror = handleScriptError;
@@ -57,7 +64,12 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
     }
 
     return () => {
-      window.initMap = () => {};
+      // Limpe o callback se existir
+      const callbackName = 'googleMapsInitCallback_' + Math.random().toString(36).substr(2, 9);
+      if (window[callbackName as keyof typeof window]) {
+        delete window[callbackName as keyof typeof window];
+      }
+      
       if (googleMapScript.current && document.head.contains(googleMapScript.current)) {
         document.head.removeChild(googleMapScript.current);
       }
@@ -91,7 +103,7 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
     }
   };
 
-  // Função para geocodificar um endereço
+  // Função para geocodificar um endereço com retry e melhor tratamento de erros
   const geocodeAddress = async (address: string): Promise<google.maps.LatLng> => {
     return new Promise((resolve, reject) => {
       if (!isLoaded || !window.google || !window.google.maps) {
@@ -101,31 +113,64 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
 
       const geocoder = new google.maps.Geocoder();
       
-      geocoder.geocode({ address, region: 'BR' }, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-          resolve(results[0].geometry.location);
-        } else {
-          let errorMessage = 'Falha ao geocodificar endereço';
+      // Adiciona componente de região ao Brasil para melhorar precisão
+      const geocoderRequest: google.maps.GeocoderRequest = {
+        address,
+        region: 'BR',
+        componentRestrictions: { country: 'BR' }
+      };
+      
+      // Função para tentar geocodificar com retry
+      const attemptGeocode = (attempts = 0) => {
+        geocoder.geocode(geocoderRequest, (results, status) => {
+          console.log("Geocode status:", status);
           
-          // Mapear códigos de status para mensagens mais amigáveis
-          switch (status) {
-            case google.maps.GeocoderStatus.ZERO_RESULTS:
-              errorMessage = 'Nenhum resultado encontrado para este endereço';
-              break;
-            case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
-              errorMessage = 'Limite de consultas à API do Google Maps excedido';
-              break;
-            case google.maps.GeocoderStatus.REQUEST_DENIED:
-              errorMessage = 'Requisição negada pelo serviço de geocodificação';
-              break;
-            case google.maps.GeocoderStatus.INVALID_REQUEST:
-              errorMessage = 'Requisição inválida de geocodificação';
-              break;
+          if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+            // Log de sucesso com detalhes para debugging
+            console.log("Geocode bem-sucedido:", results[0].formatted_address);
+            resolve(results[0].geometry.location);
+          } else {
+            let errorMessage = 'Falha ao geocodificar endereço';
+            
+            // Mapear códigos de status para mensagens mais amigáveis
+            switch (status) {
+              case google.maps.GeocoderStatus.ZERO_RESULTS:
+                errorMessage = 'Nenhum resultado encontrado para este endereço. Tente ser mais específico.';
+                break;
+              case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
+                if (attempts < 3) {
+                  // Retry com delay exponencial
+                  const delay = Math.pow(2, attempts) * 1000;
+                  console.log(`Limite excedido, nova tentativa em ${delay}ms...`);
+                  setTimeout(() => attemptGeocode(attempts + 1), delay);
+                  return;
+                }
+                errorMessage = 'Limite de consultas à API do Google Maps excedido. Tente novamente mais tarde.';
+                break;
+              case google.maps.GeocoderStatus.REQUEST_DENIED:
+                errorMessage = 'Não foi possível validar o endereço. Use a ferramenta de autocompletar para selecionar um endereço válido.';
+                break;
+              case google.maps.GeocoderStatus.INVALID_REQUEST:
+                errorMessage = 'Requisição inválida de geocodificação. Verifique o formato do endereço.';
+                break;
+              case google.maps.GeocoderStatus.UNKNOWN_ERROR:
+                if (attempts < 3) {
+                  // Retry para erros temporários
+                  setTimeout(() => attemptGeocode(attempts + 1), 1000);
+                  return;
+                }
+                errorMessage = 'Erro desconhecido ao localizar endereço. Tente novamente.';
+                break;
+            }
+            
+            console.error("Erro de geocodificação:", errorMessage, status);
+            reject(new Error(errorMessage));
           }
-          
-          reject(new Error(errorMessage));
-        }
-      });
+        });
+      };
+      
+      // Primeira tentativa
+      attemptGeocode();
     });
   };
 
@@ -137,16 +182,20 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
         return;
       }
 
+      const request = {
+        input,
+        componentRestrictions: { country: 'br' },
+        types: ['address', 'establishment'],
+        sessionToken: new google.maps.places.AutocompleteSessionToken()
+      };
+
       placesService.getPlacePredictions(
-        {
-          input,
-          componentRestrictions: { country: 'br' },
-          types: ['establishment', 'geocode']
-        },
+        request,
         (predictions, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
             resolve(predictions);
           } else {
+            console.error("Erro ao buscar sugestões:", status);
             reject(new Error('Não foi possível obter sugestões de endereço'));
           }
         }
@@ -162,17 +211,30 @@ export const useGoogleMaps = (mapRef: React.RefObject<HTMLDivElement>) => {
         return;
       }
 
-      // Precisamos de um elemento DOM para criar o serviço PlacesService
-      const placesService = new google.maps.places.PlacesService(
-        document.createElement('div')
-      );
+      // Usamos um mapDiv para evitar erros de DOM
+      const mapDiv = document.createElement('div');
+      
+      const placesService = new google.maps.places.PlacesService(mapDiv);
 
       placesService.getDetails(
-        { placeId, fields: ['address_components', 'formatted_address', 'geometry', 'name', 'formatted_phone_number'] },
+        { 
+          placeId, 
+          fields: [
+            'address_components',
+            'formatted_address',
+            'geometry',
+            'name',
+            'formatted_phone_number',
+            'business_status',
+            'types'
+          ]
+        },
         (place, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+            console.log("Detalhes do lugar obtidos com sucesso:", place);
             resolve(place);
           } else {
+            console.error("Erro ao obter detalhes do lugar:", status);
             reject(new Error('Não foi possível obter detalhes do endereço'));
           }
         }
