@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
-import { Google } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -74,7 +73,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       });
       
       if (error) throw error;
-      // Redirect is handled by Supabase
+      // Redirect handled by Supabase
     } catch (error: any) {
       console.error('Erro ao fazer login com Google:', error);
       toast.error(error.message || 'Erro ao fazer login com Google');
@@ -168,7 +167,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onClick={handleSignInWithGoogle}
               disabled={isLoading}
             >
-              <Google className="h-4 w-4" /> 
+              <LogIn className="h-4 w-4" /> 
               Continuar com Google
             </Button>
 

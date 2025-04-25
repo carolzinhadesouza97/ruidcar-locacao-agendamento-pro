@@ -1,13 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash2 } from 'lucide-react';
-import { WorkshopModal } from '@/components/workshop/WorkshopModal';
+import { PlusCircle, Edit, Trash } from 'lucide-react';
 import { toast } from 'sonner';
+import { WorkshopModal } from '@/components/workshop/WorkshopModal';
 
 interface Workshop {
   id: string;
@@ -15,83 +12,76 @@ interface Workshop {
   address: string;
   city: string;
   state: string;
+  zip_code?: string;
+  phone?: string;
+  website?: string;
+  price_popular?: number;
+  price_medium?: number;
+  price_imported?: number;
+  open_hours?: {
+    [key: string]: string;
+  };
+  rating?: number;
+  approved?: boolean;
+  created_at?: string;
 }
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string>('');
   const [workshops, setWorkshops] = useState<Workshop[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentWorkshop, setCurrentWorkshop] = useState<Workshop | null>(null);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/');
-        return;
-      }
-      
-      setUser(session.user);
-      setLoading(false);
-      fetchWorkshops(session.user.id);
-    };
-
-    checkUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_OUT') {
-          navigate('/');
-        } else if (session?.user) {
-          setUser(session.user);
-          fetchWorkshops(session.user.id);
+    const fetchUserAndWorkshops = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          setUserId(user.id);
+          
+          const { data, error } = await supabase
+            .from('workshops')
+            .select('*')
+            .eq('owner_id', user.id);
+            
+          if (error) throw error;
+          
+          setWorkshops(data || []);
         }
+      } catch (error: any) {
+        console.error('Erro ao carregar dados:', error);
+        toast.error('Erro ao carregar oficinas');
+      } finally {
+        setLoading(false);
       }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
     };
-  }, [navigate]);
-
-  const fetchWorkshops = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('workshops')
-        .select('id, name, address, city, state')
-        .eq('owner_id', userId);
-
-      if (error) throw error;
-      setWorkshops(data || []);
-    } catch (error: any) {
-      console.error('Erro ao buscar oficinas:', error);
-      toast.error('Não foi possível carregar suas oficinas');
-    }
-  };
+    
+    fetchUserAndWorkshops();
+  }, []);
 
   const handleAddWorkshop = () => {
-    setCurrentWorkshop(null);
+    setSelectedWorkshop(null);
     setIsModalOpen(true);
   };
-
+  
   const handleEditWorkshop = (workshop: Workshop) => {
-    setCurrentWorkshop(workshop);
+    setSelectedWorkshop(workshop);
     setIsModalOpen(true);
   };
-
-  const handleDeleteWorkshop = async (workshopId: string) => {
-    if (confirm('Tem certeza que deseja excluir esta oficina?')) {
+  
+  const handleDeleteWorkshop = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja excluir esta oficina?')) {
       try {
         const { error } = await supabase
           .from('workshops')
           .delete()
-          .eq('id', workshopId);
-
+          .eq('id', id);
+          
         if (error) throw error;
         
-        setWorkshops(workshops.filter(w => w.id !== workshopId));
+        setWorkshops(workshops.filter(w => w.id !== id));
         toast.success('Oficina removida com sucesso');
       } catch (error: any) {
         console.error('Erro ao excluir oficina:', error);
@@ -99,105 +89,82 @@ const Dashboard = () => {
       }
     }
   };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+  
+  const handleWorkshopSaved = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('workshops')
+        .select('*')
+        .eq('owner_id', userId);
+        
+      if (error) throw error;
+      
+      setWorkshops(data || []);
+      setIsModalOpen(false);
+    } catch (error: any) {
+      console.error('Erro ao atualizar lista de oficinas:', error);
+    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg">Carregando...</p>
+        <p>Carregando...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <NavBar />
-      <main className="flex-1 container py-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-brand-gray">Meu Painel</h1>
-              <p className="text-brand-gray">
-                Bem-vindo(a), {user?.user_metadata?.name || user?.email}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleAddWorkshop}>
-                <Plus className="w-4 h-4 mr-1" />
-                Nova Oficina
-              </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                Sair
-              </Button>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
-            <h2 className="text-xl font-semibold mb-4">Minhas Oficinas</h2>
-            
-            {workshops.length === 0 ? (
-              <div className="text-center py-8 border border-dashed rounded-md">
-                <p className="text-muted-foreground mb-4">
-                  Você ainda não possui oficinas cadastradas
-                </p>
-                <Button onClick={handleAddWorkshop}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Adicionar Oficina
+    <div className="container mx-auto py-8 max-w-5xl">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Minhas Oficinas</h1>
+        <Button onClick={handleAddWorkshop}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Nova Oficina
+        </Button>
+      </div>
+      
+      {workshops.length === 0 ? (
+        <div className="bg-gray-50 p-8 text-center rounded-lg border border-dashed">
+          <p className="text-gray-500">Você ainda não possui oficinas cadastradas.</p>
+          <Button onClick={handleAddWorkshop} variant="outline" className="mt-4">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Cadastrar minha primeira oficina
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {workshops.map((workshop) => (
+            <div 
+              key={workshop.id} 
+              className="bg-white p-4 rounded-lg shadow-sm border flex justify-between items-center"
+            >
+              <div>
+                <h2 className="font-semibold text-lg">{workshop.name}</h2>
+                <p className="text-sm text-gray-500">{workshop.address}, {workshop.city}/{workshop.state}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleEditWorkshop(workshop)}>
+                  <Edit className="h-4 w-4" />
+                  <span className="ml-1 hidden md:inline">Editar</span>
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => handleDeleteWorkshop(workshop.id)}>
+                  <Trash className="h-4 w-4" />
+                  <span className="ml-1 hidden md:inline">Excluir</span>
                 </Button>
               </div>
-            ) : (
-              <div className="divide-y">
-                {workshops.map((workshop) => (
-                  <div key={workshop.id} className="py-4 flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium text-lg">{workshop.name}</h3>
-                      <p className="text-muted-foreground">
-                        {workshop.address}, {workshop.city}/{workshop.state}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditWorkshop(workshop)}
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Editar
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => handleDeleteWorkshop(workshop.id)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Excluir
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+          ))}
         </div>
-
-        {isModalOpen && (
-          <WorkshopModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            workshop={currentWorkshop}
-            onWorkshopSaved={() => {
-              setIsModalOpen(false);
-              fetchWorkshops(user.id);
-            }}
-            userId={user.id}
-          />
-        )}
-      </main>
-      <Footer />
+      )}
+      
+      <WorkshopModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        workshop={selectedWorkshop}
+        onWorkshopSaved={handleWorkshopSaved}
+        userId={userId}
+      />
     </div>
   );
 };

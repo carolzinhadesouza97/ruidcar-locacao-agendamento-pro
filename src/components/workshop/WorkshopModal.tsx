@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BusinessAddressAutocomplete } from './BusinessAddressAutocomplete';
 import { WorkingHoursField } from './WorkingHoursField';
+import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 
 const workshopSchema = z.object({
   name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
@@ -44,6 +45,9 @@ interface Workshop {
   price_medium?: number | string;
   price_imported?: number | string;
   open_hours?: WorkingHours;
+  email?: string;
+  lat?: number;
+  lng?: number;
 }
 
 interface WorkshopModalProps {
@@ -65,6 +69,10 @@ export function WorkshopModal({ isOpen, onClose, workshop, onWorkshopSaved, user
     saturday: '08:00 - 12:00',
     sunday: 'Fechado',
   });
+  
+  // Reference for Google Maps geocoding
+  const mapRef = React.useRef<HTMLDivElement>(null);
+  const { geocodeAddress } = useGoogleMaps(mapRef);
   
   const form = useForm<WorkshopFormInput>({
     resolver: zodResolver(workshopSchema),
@@ -97,6 +105,24 @@ export function WorkshopModal({ isOpen, onClose, workshop, onWorkshopSaved, user
       const priceMedium = parseFloat(data.priceMedium.replace(',', '.'));
       const priceImported = parseFloat(data.priceImported.replace(',', '.'));
       
+      // Get user email
+      const { data: { user } } = await supabase.auth.getUser();
+      const userEmail = user?.email || '';
+
+      // Geocode address to get lat/lng
+      let lat = 0;
+      let lng = 0;
+      
+      try {
+        const fullAddress = `${data.address}, ${data.city}, ${data.state}, ${data.zipCode}, Brasil`;
+        const location = await geocodeAddress(fullAddress);
+        lat = location.lat();
+        lng = location.lng();
+      } catch (error) {
+        console.error('Error geocoding address:', error);
+        toast.warning('Não foi possível obter coordenadas precisas do endereço. O mapa pode não exibir a localização correta.');
+      }
+      
       const workshopData = {
         name: data.name,
         address: data.address,
@@ -110,6 +136,9 @@ export function WorkshopModal({ isOpen, onClose, workshop, onWorkshopSaved, user
         price_imported: priceImported,
         open_hours: workingHours,
         owner_id: userId,
+        email: userEmail,
+        lat: lat,
+        lng: lng
       };
       
       let response;
@@ -135,6 +164,7 @@ export function WorkshopModal({ isOpen, onClose, workshop, onWorkshopSaved, user
       
       toast.success(workshop?.id ? 'Oficina atualizada com sucesso!' : 'Oficina cadastrada com sucesso!');
       onWorkshopSaved();
+      onClose();
     } catch (error: any) {
       console.error('Erro ao salvar oficina:', error);
       toast.error(error.message || 'Erro ao salvar oficina');

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Google } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -121,7 +121,7 @@ const RegisterOwner = () => {
               onClick={handleSignInWithGoogle}
               disabled={isLoading}
             >
-              <Google className="h-4 w-4" /> 
+              <LogIn className="h-4 w-4" /> 
               Continuar com Google
             </Button>
             
