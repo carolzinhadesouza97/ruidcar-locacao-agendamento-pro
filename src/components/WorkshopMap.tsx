@@ -10,7 +10,7 @@ import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 
 // Extended interface to include distance property
 interface OficinaWithDistance extends OficinaRUIDCAR {
-  distance?: number;
+  distance: number;
 }
 
 interface WorkshopMapProps {
@@ -44,13 +44,15 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         const { latitude: userLat, longitude: userLng } = position.coords;
         setUserLocation({ lat: userLat, lng: userLng });
 
-        const oficinasWithDistance = oficinasRUIDCAR.map(oficina => ({
+        // Create a new array with distance calculated for each oficina
+        const oficinasWithDistance: OficinaWithDistance[] = oficinasRUIDCAR.map(oficina => ({
           ...oficina,
           distance: calculateHaversineDistance(userLat, userLng, oficina.lat, oficina.lng)
         }));
 
+        // Sort oficinas by distance and take the nearest 5
         const nearest = oficinasWithDistance
-          .sort((a, b) => (a.distance || 0) - (b.distance || 0))
+          .sort((a, b) => a.distance - b.distance)
           .slice(0, 5);
 
         setNearestOficinas(nearest);
@@ -129,20 +131,19 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       }
 
       // Add oficinas markers
-      const oficinasToDisplay = nearestOficinas.length > 0 ? nearestOficinas : oficinasRUIDCAR;
+      const oficinasToDisplay = nearestOficinas.length > 0 ? nearestOficinas : [];
       
       oficinasToDisplay.forEach((oficina) => {
-        const isNearest = nearestOficinas.includes(oficina);
         const marker = new google.maps.Marker({
           position: { lat: oficina.lat, lng: oficina.lng },
           map,
           icon: {
             path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            fillColor: isNearest ? '#FF6600' : '#666666',
+            fillColor: '#FF6600',
             fillOpacity: 1,
             strokeColor: '#FFFFFF',
             strokeWeight: 2,
-            scale: (selectedOficina?.nome === oficina.nome) ? 10 : (isNearest ? 8 : 6),
+            scale: (selectedOficina?.nome === oficina.nome) ? 10 : 8,
           },
         });
 
@@ -155,11 +156,9 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
                 <h3 class="font-semibold mb-2">${oficina.nome}</h3>
                 <p class="text-sm mb-1">${oficina.endereco}</p>
                 <p class="text-sm mb-2">${oficina.telefone}</p>
-                ${oficina.distance ? `
-                  <p class="text-sm text-orange-500 font-semibold">
-                    ${oficina.distance.toFixed(2)} km de distância
-                  </p>
-                ` : ''}
+                <p class="text-sm text-orange-500 font-semibold">
+                  ${oficina.distance.toFixed(2)} km de distância
+                </p>
               </div>
             `,
           });
