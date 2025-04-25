@@ -33,6 +33,7 @@ const Index = () => {
 
   // Handle updating the workshops list (e.g., when finding nearest)
   const handleUpdateWorkshops = (workshops: Workshop[]) => {
+    console.log("Recebendo oficinas para exibir:", workshops);
     setWorkshopsToDisplay(workshops);
     setIsSheetOpen(true); // Open the sheet on mobile when workshops are found
     setCurrentView("list"); // Ensure we're showing the list view

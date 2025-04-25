@@ -34,7 +34,7 @@ export const useMapbox = () => {
   const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [isLocating, setIsLocating] = useState(false);
   const [viewport, setViewport] = useState<MapViewport>(BRAZIL_CENTER);
-  const [nearestWorkshops, setNearestWorkshops] = useState<WorkshopWithDistance[]>([]);
+  const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
 
   // Inicializa o mapa garantindo que os valores iniciais estão corretos
   useEffect(() => {
@@ -55,6 +55,7 @@ export const useMapbox = () => {
 
   const handleLocateOficinas = useCallback((oficinas: OficinaRUIDCAR[], workshops: Workshop[]) => {
     setIsLocating(true);
+    console.log("Iniciando localização de oficinas...");
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -83,7 +84,7 @@ export const useMapbox = () => {
         setNearestOficinas(nearest);
         
         // Process workshops and create a parallel list with distances
-        const workshopsWithDistance: WorkshopWithDistance[] = workshops.map(workshop => {
+        const workshopsWithDistance: Workshop[] = workshops.map(workshop => {
           const distance = calculateHaversineDistance(
             userLoc.lat,
             userLoc.lng,
@@ -97,11 +98,12 @@ export const useMapbox = () => {
           };
         });
         
-        // Get 3-5 nearest workshops
+        // Get 5 nearest workshops
         const nearestShops = workshopsWithDistance
-          .sort((a, b) => a.distance - b.distance)
+          .sort((a, b) => (a.distance || 0) - (b.distance || 0))
           .slice(0, 5);
-          
+        
+        console.log("Oficinas mais próximas encontradas:", nearestShops);  
         setNearestWorkshops(nearestShops);
         
         if (nearest.length > 0 || nearestShops.length > 0) {

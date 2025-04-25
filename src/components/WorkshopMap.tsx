@@ -41,11 +41,13 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   // Update parent component with nearest workshops when they change
   useEffect(() => {
     if (nearestWorkshops && nearestWorkshops.length > 0 && onUpdateNearestWorkshops) {
+      console.log('Updating nearest workshops:', nearestWorkshops);
       onUpdateNearestWorkshops(nearestWorkshops);
     }
   }, [nearestWorkshops, onUpdateNearestWorkshops]);
 
   const handleFindNearestWorkshops = useCallback(() => {
+    console.log('Finding nearest workshops...');
     handleLocateOficinas(oficinasRUIDCAR, workshops);
   }, [handleLocateOficinas, workshops]);
 
