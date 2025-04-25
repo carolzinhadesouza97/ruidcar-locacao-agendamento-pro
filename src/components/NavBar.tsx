@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LoginModal } from '@/components/auth/LoginModal';
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <header className="border-b bg-white">
@@ -22,11 +24,16 @@ const NavBar: React.FC = () => {
             variant="ghost" 
             size="sm" 
             className="text-brand-gray"
-            onClick={() => navigate('/register-workshop')}
+            onClick={() => setIsLoginModalOpen(true)}
           >
             <User className="w-4 h-4 mr-1" /> 
             Entrar como Oficina
           </Button>
+
+          <LoginModal 
+            isOpen={isLoginModalOpen} 
+            onClose={() => setIsLoginModalOpen(false)} 
+          />
         </div>
       </div>
     </header>
