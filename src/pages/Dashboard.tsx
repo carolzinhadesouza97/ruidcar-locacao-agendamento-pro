@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Edit, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkshopModal } from '@/components/workshop/WorkshopModal';
+import { Json } from '@/integrations/supabase/types';
 
 interface Workshop {
   id: string;
@@ -18,12 +19,13 @@ interface Workshop {
   price_popular?: number;
   price_medium?: number;
   price_imported?: number;
-  open_hours?: {
-    [key: string]: string;
-  };
+  open_hours?: { [key: string]: string };
   rating?: number;
   approved?: boolean;
   created_at?: string;
+  email?: string;
+  lat?: number;
+  lng?: number;
 }
 
 const Dashboard = () => {
@@ -48,7 +50,13 @@ const Dashboard = () => {
             
           if (error) throw error;
           
-          setWorkshops(data || []);
+          // Convert Supabase JSON data to the expected Workshop type
+          const typedWorkshops: Workshop[] = data?.map(item => ({
+            ...item,
+            open_hours: typeof item.open_hours === 'object' ? item.open_hours : {}
+          })) || [];
+          
+          setWorkshops(typedWorkshops);
         }
       } catch (error: any) {
         console.error('Erro ao carregar dados:', error);
@@ -99,7 +107,13 @@ const Dashboard = () => {
         
       if (error) throw error;
       
-      setWorkshops(data || []);
+      // Convert Supabase JSON data to the expected Workshop type
+      const typedWorkshops: Workshop[] = data?.map(item => ({
+        ...item,
+        open_hours: typeof item.open_hours === 'object' ? item.open_hours : {}
+      })) || [];
+      
+      setWorkshops(typedWorkshops);
       setIsModalOpen(false);
     } catch (error: any) {
       console.error('Erro ao atualizar lista de oficinas:', error);
