@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
 import { oficinasRUIDCAR } from '@/data/oficinasRUIDCAR';
 import Map, { Marker, GeolocateControl, NavigationControl } from 'react-map-gl';
-import { useMapbox, OficinaWithDistance } from '@/hooks/map/useMapbox';
+import { useMapbox, OficinaWithDistance, MapViewport } from '@/hooks/map/useMapbox';
 import MapInfoPopup from '@/components/map/MapInfoPopup';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -59,7 +59,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           e.originalEvent.stopPropagation();
           setSelectedOficina(oficina);
           setViewport({
-            ...viewport,
             latitude: oficina.lat,
             longitude: oficina.lng,
             zoom: 15,
@@ -87,7 +86,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         </div>
       </Marker>
     ));
-  }, [nearestOficinas, viewport, setViewport]);
+  }, [nearestOficinas, setViewport]);
 
   return (
     <div className="h-full w-full relative">
@@ -126,10 +125,10 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           showUserLocation
           onGeolocate={(e) => {
             setViewport({
-              ...viewport,
               latitude: e.coords.latitude,
               longitude: e.coords.longitude,
-              zoom: 13
+              zoom: 13,
+              transitionDuration: 1000
             });
           }}
         />

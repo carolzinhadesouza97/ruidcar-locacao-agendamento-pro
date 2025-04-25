@@ -14,8 +14,16 @@ export interface WorkshopWithDistance extends Workshop {
   distance: number; // Changed from string to number to match Workshop type
 }
 
+// Define a proper viewport type that includes transitionDuration
+export interface MapViewport {
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  transitionDuration?: number; // Make this optional
+}
+
 // Coordenadas padrão para o Brasil (centro aproximado)
-const BRAZIL_CENTER = {
+const BRAZIL_CENTER: MapViewport = {
   latitude: -15.77972,
   longitude: -47.92972,
   zoom: 4
@@ -25,7 +33,7 @@ export const useMapbox = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [isLocating, setIsLocating] = useState(false);
-  const [viewport, setViewport] = useState(BRAZIL_CENTER);
+  const [viewport, setViewport] = useState<MapViewport>(BRAZIL_CENTER);
   const [nearestWorkshops, setNearestWorkshops] = useState<WorkshopWithDistance[]>([]);
 
   // Inicializa o mapa garantindo que os valores iniciais estão corretos
@@ -101,7 +109,8 @@ export const useMapbox = () => {
           setViewport({
             latitude: userLoc.lat,
             longitude: userLoc.lng,
-            zoom: 12
+            zoom: 12,
+            transitionDuration: 1000 // Add transition duration here
           });
         }
 
