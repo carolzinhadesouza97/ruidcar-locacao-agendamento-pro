@@ -12,12 +12,13 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
+      // @ts-ignore TS2589
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
         .eq('owner_id', userId);
       
-      if (error) throw error;
+      if (error) throw error as PostgrestError;
       
       const workshopsData = (data as unknown as WorkshopDTO[]) ?? [];
       const typedWorkshops = workshopsData.map(convertDTOToWorkshop);
@@ -34,12 +35,13 @@ export const useWorkshops = (userId: string) => {
   const deleteWorkshop = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir esta oficina?')) {
       try {
-        const { error }: PostgrestResponse<WorkshopDTO> = await supabase
-          .from<WorkshopDTO>('workshops')
+        // @ts-ignore TS2589
+        const { error } = await supabase
+          .from('workshops')
           .delete()
           .eq('id', id);
           
-        if (error) throw error;
+        if (error) throw error as PostgrestError;
         
         setWorkshops(workshops.filter(w => w.id !== id));
         toast.success('Oficina removida com sucesso');
