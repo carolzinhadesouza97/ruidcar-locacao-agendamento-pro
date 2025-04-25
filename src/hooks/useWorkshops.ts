@@ -13,12 +13,14 @@ export const useWorkshops = (userId: string) => {
       const { data, error } = await supabase
         .from('workshops')
         .select('*')
-        .eq('owner_id', userId)
-        .returns<WorkshopDTO[]>();
+        .eq('owner_id', userId);
       
       if (error) throw error;
       
-      const typedWorkshops = (data ?? []).map(convertDTOToWorkshop);
+      const typedWorkshops = Array.isArray(data) 
+        ? data.map(item => convertDTOToWorkshop(item as WorkshopDTO)) 
+        : [];
+        
       setWorkshops(typedWorkshops);
     } catch (error: any) {
       console.error('Erro ao carregar dados:', error);
