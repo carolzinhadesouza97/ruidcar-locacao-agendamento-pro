@@ -10,15 +10,10 @@ export const useWorkshops = (userId: string) => {
 
   const fetchWorkshops = async () => {
     try {
-      // Use type assertion with generic to handle Supabase type complexities
+      // Avoid TypeScript deep instantiation by using any for the query result
       const { data, error } = await supabase
         .from('workshops')
-        .select(`
-          id, name, address, city, state, zip_code,
-          phone, email, lat, lng, open_hours,
-          price_popular, price_medium, price_imported,
-          approved, created_at, website
-        `)
+        .select('*')
         .eq('owner_id', userId) as { data: any[] | null, error: any };
       
       if (error) throw error;
