@@ -1,84 +1,29 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash } from 'lucide-react';
-import { toast } from 'sonner';
+import { PlusCircle } from 'lucide-react';
 import { WorkshopModal } from '@/components/workshop/WorkshopModal';
-import { Json } from '@/integrations/supabase/types';
-
-// Base types for data handling
-type OpenHours = Record<string, string>;
-
-interface WorkshopDTO {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  zip_code: string;
-  phone: string;
-  email: string;
-  lat: number;
-  lng: number;
-  open_hours: Json;
-  price_popular: number;
-  price_medium: number;
-  price_imported: number;
-  approved: boolean | null;
-  created_at: string | null;
-  website?: string | null;
-}
-
-interface Workshop extends Omit<WorkshopDTO, 'open_hours' | 'website'> {
-  open_hours: OpenHours;
-  website: string;
-}
-
-// Helper function to convert DTO to Workshop
-const convertDTOToWorkshop = (dto: WorkshopDTO): Workshop => ({
-  ...dto,
-  open_hours: typeof dto.open_hours === 'string'
-    ? JSON.parse(dto.open_hours) as OpenHours
-    : (dto.open_hours as OpenHours),
-  website: dto.website ?? '',
-});
+import { useWorkshops } from '@/hooks/useWorkshops';
+import { WorkshopList } from '@/components/workshop/WorkshopList';
+import { Workshop } from '@/types/workshop';
 
 const Dashboard = () => {
   const [userId, setUserId] = useState<string>('');
-  const [workshops, setWorkshops] = useState<Workshop[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
+  
+  const { workshops, loading, fetchWorkshops, deleteWorkshop } = useWorkshops(userId);
 
   useEffect(() => {
-    const fetchUserAndWorkshops = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-          setUserId(user.id);
-          
-          const { data, error } = await supabase
-            .from('workshops')
-            .select('*')
-            .eq('owner_id', user.id);
-            
-          if (error) throw error;
-          
-          const rawData = (data ?? []) as WorkshopDTO[];
-          const typedWorkshops = rawData.map(convertDTOToWorkshop);
-          
-          setWorkshops(typedWorkshops);
-        }
-      } catch (error: any) {
-        console.error('Erro ao carregar dados:', error);
-        toast.error('Erro ao carregar oficinas');
-      } finally {
-        setLoading(false);
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
       }
     };
     
-    fetchUserAndWorkshops();
+    fetchUser();
   }, []);
 
   const handleAddWorkshop = () => {
@@ -89,44 +34,6 @@ const Dashboard = () => {
   const handleEditWorkshop = (workshop: Workshop) => {
     setSelectedWorkshop(workshop);
     setIsModalOpen(true);
-  };
-  
-  const handleDeleteWorkshop = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir esta oficina?')) {
-      try {
-        const { error } = await supabase
-          .from('workshops')
-          .delete()
-          .eq('id', id);
-          
-        if (error) throw error;
-        
-        setWorkshops(workshops.filter(w => w.id !== id));
-        toast.success('Oficina removida com sucesso');
-      } catch (error: any) {
-        console.error('Erro ao excluir oficina:', error);
-        toast.error('Erro ao excluir oficina');
-      }
-    }
-  };
-  
-  const handleWorkshopSaved = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('workshops')
-        .select('*')
-        .eq('owner_id', userId);
-        
-      if (error) throw error;
-      
-      const rawData = (data ?? []) as WorkshopDTO[];
-      const typedWorkshops = rawData.map(convertDTOToWorkshop);
-      
-      setWorkshops(typedWorkshops);
-      setIsModalOpen(false);
-    } catch (error: any) {
-      console.error('Erro ao atualizar lista de oficinas:', error);
-    }
   };
 
   if (loading) {
@@ -156,36 +63,18 @@ const Dashboard = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {workshops.map((workshop) => (
-            <div 
-              key={workshop.id} 
-              className="bg-white p-4 rounded-lg shadow-sm border flex justify-between items-center"
-            >
-              <div>
-                <h2 className="font-semibold text-lg">{workshop.name}</h2>
-                <p className="text-sm text-gray-500">{workshop.address}, {workshop.city}/{workshop.state}</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleEditWorkshop(workshop)}>
-                  <Edit className="h-4 w-4" />
-                  <span className="ml-1 hidden md:inline">Editar</span>
-                </Button>
-                <Button variant="destructive" size="sm" onClick={() => handleDeleteWorkshop(workshop.id)}>
-                  <Trash className="h-4 w-4" />
-                  <span className="ml-1 hidden md:inline">Excluir</span>
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <WorkshopList
+          workshops={workshops}
+          onEdit={handleEditWorkshop}
+          onDelete={deleteWorkshop}
+        />
       )}
       
       <WorkshopModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         workshop={selectedWorkshop}
-        onWorkshopSaved={handleWorkshopSaved}
+        onWorkshopSaved={fetchWorkshops}
         userId={userId}
       />
     </div>
