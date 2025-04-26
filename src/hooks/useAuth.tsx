@@ -4,6 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+// Definição da URL base do site
+const BASE_URL = "https://preview--ruidcar-locacao-agendamento-pro.lovable.app";
+
 export type UserRole = 'admin' | 'oficina' | 'user';
 
 export interface UserProfile {
@@ -67,7 +70,7 @@ export const useAuth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { 
-          redirectTo: `${window.location.origin}/dashboard` 
+          redirectTo: `${BASE_URL}/dashboard` 
         }
       });
       
@@ -111,7 +114,7 @@ export const useAuth = () => {
         password,
         options: {
           data: userData,
-          emailRedirectTo: `${window.location.origin}/verify`
+          emailRedirectTo: `${BASE_URL}/verify`
         }
       });
       
@@ -136,7 +139,7 @@ export const useAuth = () => {
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${BASE_URL}/reset-password`,
       });
       
       if (error) throw error;

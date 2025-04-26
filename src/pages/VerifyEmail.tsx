@@ -11,6 +11,50 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Define a helper to extract auth parameters from URL if present
+    const getParametersFromURL = () => {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      return {
+        accessToken: params.get('access_token'),
+        refreshToken: params.get('refresh_token'),
+        type: params.get('type'),
+      };
+    };
+
+    // Check if we have auth tokens in the URL (from email verification)
+    const { accessToken, refreshToken, type } = getParametersFromURL();
+    
+    const handleURLParameters = async () => {
+      // If we have auth tokens in URL, set the session
+      if (accessToken && type === 'recovery') {
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+          
+          if (error) throw error;
+          navigate('/reset-password');
+          return;
+        } catch (error) {
+          console.error('Erro ao processar token de autenticação:', error);
+          setLoading(false);
+        }
+      } else if (accessToken) {
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+          
+          if (error) throw error;
+        } catch (error) {
+          console.error('Erro ao processar token de autenticação:', error);
+        }
+      }
+    };
+
     const handleAuthStateChange = (event: string) => {
       if (event === 'SIGNED_IN') {
         toast.success('Email verificado com sucesso!');
@@ -22,6 +66,9 @@ const VerifyEmail = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       handleAuthStateChange
     );
+
+    // Process URL parameters if present
+    handleURLParameters();
 
     // Check if already authenticated
     const checkExistingSession = async () => {

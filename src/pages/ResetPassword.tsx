@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,56 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Define a helper to extract auth parameters from URL if present
+    const getParametersFromURL = () => {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      return {
+        accessToken: params.get('access_token'),
+        refreshToken: params.get('refresh_token'),
+        type: params.get('type'),
+      };
+    };
+
+    // Check if we have auth tokens in the URL (from recovery email)
+    const { accessToken, refreshToken, type } = getParametersFromURL();
+    
+    const setSession = async () => {
+      if (accessToken && type === 'recovery') {
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+          
+          if (error) {
+            console.error('Erro ao definir sessão de recuperação:', error);
+            toast.error('Link de recuperação inválido ou expirado.');
+            navigate('/');
+          }
+        } catch (error) {
+          console.error('Erro ao processar token de recuperação:', error);
+          toast.error('Erro ao processar recuperação de senha.');
+          navigate('/');
+        }
+      }
+
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Você precisa estar autenticado para redefinir sua senha.');
+        navigate('/');
+      }
+
+      setInitializing(false);
+    };
+
+    setSession();
+  }, [navigate]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +96,18 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  if (initializing) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <p>Verificando sua identidade...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

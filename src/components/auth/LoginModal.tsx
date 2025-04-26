@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +28,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [isResetting, setIsResetting] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const navigate = useNavigate();
+  
+  const BASE_URL = "https://preview--ruidcar-locacao-agendamento-pro.lovable.app";
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -48,12 +49,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
       if (error) throw error;
 
-      // Check if user is already logged in
       if (!authData.user) {
         throw new Error('Erro ao fazer login');
       }
 
-      // Update user metadata with role if not present
       if (!authData.user.user_metadata?.role) {
         const { error: updateError } = await supabase.auth.updateUser({
           data: { role: 'oficina' }
@@ -85,9 +84,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${BASE_URL}/dashboard`,
           queryParams: {
-            // Set role metadata for Google signin
             access_type: 'offline',
             prompt: 'consent',
           }
@@ -95,7 +93,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       });
       
       if (error) throw error;
-      // Redirect handled by Supabase
     } catch (error: any) {
       console.error('Erro ao fazer login com Google:', error);
       toast.error(error.message || 'Erro ao fazer login com Google');
@@ -112,7 +109,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${BASE_URL}/reset-password`,
       });
 
       if (error) throw error;
