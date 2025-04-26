@@ -1,5 +1,6 @@
 
 import { BusinessData } from '@/hooks/address/useBusinessDetails';
+import { parseWeekdayHours } from '@/utils/businessHours';
 
 export const transformPlaceDetails = (placeDetails: any): BusinessData => {
   let streetNumber = '';
