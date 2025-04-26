@@ -1,12 +1,8 @@
-
 import React from 'react';
 import { Separator } from '@/components/ui/separator';
-
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-
-  return (
-    <footer className="bg-white">
+  return <footer className="bg-white">
       <div className="container py-6">
         <Separator className="mb-6" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -43,9 +39,7 @@ const Footer: React.FC = () => {
             <p className="text-sm text-brand-gray mb-1">
               suporte@ruidcar.com.br
             </p>
-            <p className="text-sm text-brand-gray">
-              (11) 3456-7890
-            </p>
+            <p className="text-sm text-brand-gray">(49) 9 9161-2478</p>
           </div>
         </div>
         
@@ -55,8 +49,6 @@ const Footer: React.FC = () => {
           © {currentYear} RUIDCAR. Todos os direitos reservados.
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
