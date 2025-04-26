@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Workshop } from '@/types/workshops';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import L from 'leaflet'; // Add this import to fix the L namespace error
 import 'leaflet/dist/leaflet.css';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MapControls from './map/MapControls';
