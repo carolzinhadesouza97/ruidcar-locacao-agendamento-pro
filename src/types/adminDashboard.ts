@@ -1,4 +1,3 @@
-
 export interface GrowthData {
   date: string;
   workshops: number;
