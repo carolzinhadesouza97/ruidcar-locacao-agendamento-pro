@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Workshop } from '@/types/workshops';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet'; // Import Leaflet to fix the L namespace error
+import { MapContainer, TileLayer, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MapControls from './map/MapControls';
@@ -10,6 +9,7 @@ import MapUpdater from './map/MapUpdater';
 import WorkshopPopup from './map/WorkshopPopup';
 import { useMapbox } from '@/hooks/map/useMapbox';
 import { workshopIcon, userLocationIcon } from './map/MapIcons';
+import IconMarker from './map/IconMarker';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
@@ -80,7 +80,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         />
 
         {userLocation && (
-          <Marker 
+          <IconMarker 
             position={[userLocation.lat, userLocation.lng]}
             icon={userLocationIcon}
           >
@@ -96,11 +96,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
               } as Workshop} 
               onSelectWorkshop={() => {}}
             />
-          </Marker>
+          </IconMarker>
         )}
 
         {displayedWorkshops.map((workshop) => (
-          <Marker
+          <IconMarker
             key={workshop.id}
             position={[workshop.lat, workshop.lng]}
             icon={workshopIcon}
@@ -109,7 +109,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
             }}
           >
             <WorkshopPopup workshop={workshop} onSelectWorkshop={onSelectWorkshop} />
-          </Marker>
+          </IconMarker>
         ))}
       </MapContainer>
     </div>
