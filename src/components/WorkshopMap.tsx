@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 import { Workshop } from '@/types/workshops';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import L from 'leaflet'; // Add this import to fix the L namespace error
+import L from 'leaflet'; // Import Leaflet to fix the L namespace error
 import 'leaflet/dist/leaflet.css';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MapControls from './map/MapControls';
 import MapUpdater from './map/MapUpdater';
 import WorkshopPopup from './map/WorkshopPopup';
 import { useMapbox } from '@/hooks/map/useMapbox';
+import { workshopIcon, userLocationIcon } from './map/MapIcons';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
@@ -81,6 +82,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {userLocation && (
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
+            icon={userLocationIcon}
           >
             <WorkshopPopup 
               workshop={{
@@ -101,6 +103,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           <Marker
             key={workshop.id}
             position={[workshop.lat, workshop.lng]}
+            icon={workshopIcon}
             eventHandlers={{
               click: () => onSelectWorkshop(workshop),
             }}
