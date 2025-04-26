@@ -38,6 +38,8 @@ export const convertToUIWorkshop = (workshop: Workshop): UIWorkshop => {
     open_hours: workshop.open_hours,
     openHours: openHours,
     permite_agendamento: workshop.permite_agendamento,
-    valor_diagnostico: workshop.valor_diagnostico
+    valor_diagnostico: workshop.valor_diagnostico,
+    created_at: workshop.created_at,  // Make sure to include this
+    approved: workshop.approved      // Make sure to include this
   };
 };

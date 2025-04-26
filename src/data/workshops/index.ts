@@ -6,6 +6,7 @@ import { southeastWorkshops } from './southeast';
 import { northeastWorkshops } from './northeast';
 import { midwestWorkshops } from './midwest';
 
+// Ensure all workshop entries have required fields from both interfaces
 export const allWorkshops: Workshop[] = [
   ...northWorkshops,
   ...southWorkshops,
