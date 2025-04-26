@@ -54,6 +54,7 @@ export type Database = {
           name: string
           open_hours: Json
           owner_id: string | null
+          permite_agendamento: boolean | null
           phone: string
           price_imported: number
           price_medium: number
@@ -75,6 +76,7 @@ export type Database = {
           name: string
           open_hours: Json
           owner_id?: string | null
+          permite_agendamento?: boolean | null
           phone: string
           price_imported: number
           price_medium: number
@@ -96,6 +98,7 @@ export type Database = {
           name?: string
           open_hours?: Json
           owner_id?: string | null
+          permite_agendamento?: boolean | null
           phone?: string
           price_imported?: number
           price_medium?: number
