@@ -9,19 +9,22 @@ import { useMapboxServices } from '@/hooks/useMapboxServices';
 export const useWorkshopRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Usamos um ref vazio apenas para inicializar o hook
   const mapRef = useRef<HTMLDivElement>(null);
   const { isLoaded, geocodeAddress } = useMapboxServices();
 
   const handleRegistration = async (data: WorkshopFormInput) => {
+    if (isSubmitting) {
+      console.log("Submissão já em andamento, ignorando clique repetido");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       console.log("Iniciando registro de oficina com dados:", data);
       
       if (!isLoaded) {
         toast.error("O serviço de geocodificação não está disponível. Tente novamente em alguns instantes.");
-        setIsSubmitting(false);
-        return;
+        throw new Error("Serviço de geocodificação indisponível");
       }
       
       // Primeiro, tente geocodificar o endereço antes de criar o usuário
@@ -30,7 +33,6 @@ export const useWorkshopRegistration = () => {
       
       let location: { lat: () => number; lng: () => number };
       try {
-        // Fazemos três tentativas de geocodificação
         toast.info('Validando localização...');
         
         location = await geocodeAddress(formattedAddress);
@@ -38,7 +40,6 @@ export const useWorkshopRegistration = () => {
       } catch (geocodeError: any) {
         console.error("Erro na geocodificação:", geocodeError);
         
-        // Segunda tentativa: apenas cidade e estado
         try {
           const simpleAddress = `${data.city}, ${data.state}, Brasil`;
           console.log("Tentando geocodificar com endereço simplificado:", simpleAddress);
@@ -46,18 +47,14 @@ export const useWorkshopRegistration = () => {
           location = await geocodeAddress(simpleAddress);
           console.log("Geocodificação simplificada bem-sucedida:", location.lat(), location.lng());
           
-          // Aviso de que estamos usando localização aproximada
           toast.warning('Usando localização aproximada baseada na cidade. Para melhor precisão, selecione um endereço da lista de sugestões.');
         } catch (secondError) {
           console.error("Erro também na geocodificação simplificada:", secondError);
-          toast.error(`Erro ao localizar endereço: ${geocodeError.message || 'Verifique se o endereço está correto'}`);
-          setIsSubmitting(false);
-          return;
+          throw new Error(`Erro ao localizar endereço: ${geocodeError.message || 'Verifique se o endereço está correto'}`);
         }
       }
       
       console.log("Criando usuário com email:", data.email);
-      // Se chegou aqui, a geocodificação foi bem-sucedida, então prossiga com o cadastro
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -65,7 +62,12 @@ export const useWorkshopRegistration = () => {
 
       if (authError) {
         console.error("Erro na criação do usuário:", authError);
-        throw authError;
+        throw new Error(`Erro ao criar usuário: ${authError.message}`);
+      }
+
+      if (!authData.user?.id) {
+        console.error("Usuário criado sem ID");
+        throw new Error("Erro interno: usuário criado sem ID");
       }
 
       console.log("Usuário criado com sucesso. ID:", authData.user?.id);
@@ -74,6 +76,10 @@ export const useWorkshopRegistration = () => {
       const pricePopular = parseFloat(data.pricePopular.replace(',', '.'));
       const priceMedium = parseFloat(data.priceMedium.replace(',', '.'));
       const priceImported = parseFloat(data.priceImported.replace(',', '.'));
+
+      if (isNaN(pricePopular) || isNaN(priceMedium) || isNaN(priceImported)) {
+        throw new Error("Os preços informados não são valores numéricos válidos");
+      }
 
       console.log("Inserindo dados da oficina na tabela workshops");
       const { data: workshopData, error: workshopError } = await supabase
@@ -102,7 +108,12 @@ export const useWorkshopRegistration = () => {
 
       if (workshopError) {
         console.error("Erro ao inserir oficina:", workshopError);
-        throw workshopError;
+        throw new Error(`Erro ao cadastrar oficina: ${workshopError.message}`);
+      }
+
+      if (!workshopData?.id) {
+        console.error("Oficina criada sem ID");
+        throw new Error("Erro interno: oficina criada sem ID");
       }
 
       console.log("Oficina inserida com sucesso. ID:", workshopData.id);
@@ -119,15 +130,20 @@ export const useWorkshopRegistration = () => {
 
       if (linkError) {
         console.error("Erro ao vincular oficina ao usuário:", linkError);
-        throw linkError;
+        throw new Error(`Erro ao vincular oficina ao usuário: ${linkError.message}`);
       }
 
       console.log("Cadastro concluído com sucesso");
       toast.success('Oficina cadastrada com sucesso! Aguarde a aprovação.');
-      navigate('/');
+      
+      // Atraso pequeno para garantir que o toast seja mostrado antes da navegação
+      setTimeout(() => {
+        navigate('/');
+      }, 500);
     } catch (error: any) {
       console.error('Erro ao cadastrar oficina:', error);
       toast.error(error.message || 'Erro ao cadastrar oficina');
+      throw error;
     } finally {
       setIsSubmitting(false);
     }
