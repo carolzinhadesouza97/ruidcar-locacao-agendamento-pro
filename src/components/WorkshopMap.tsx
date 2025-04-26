@@ -82,6 +82,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {userLocation && (
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
+            icon={userLocationIcon}
           >
             <WorkshopPopup 
               workshop={{
@@ -102,6 +103,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           <Marker
             key={workshop.id}
             position={[workshop.lat, workshop.lng]}
+            icon={workshopIcon}
             eventHandlers={{
               click: () => onSelectWorkshop(workshop),
             }}
