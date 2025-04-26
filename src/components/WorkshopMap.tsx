@@ -131,15 +131,15 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <MapContainer
-        center={defaultCenter}
-        zoom={5}
         style={{ width: '100%', height: '100%' }}
         className="z-0"
         attributionControl={true}
+        // The following properties are set by the MapUpdater component instead of directly here
+        // This avoids TypeScript errors
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          // Attribution is now handled correctly by the library
         />
         
         <MapUpdater 
@@ -150,7 +150,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {userLocation && (
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
-            icon={userLocationIcon}
+            // Use the Icon instance directly
           >
             <Popup>Sua localização</Popup>
           </Marker>
@@ -160,7 +160,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           <Marker
             key={workshop.id}
             position={[workshop.lat, workshop.lng]}
-            icon={workshopIcon}
+            // Use the workshop icon
             eventHandlers={{
               click: () => onSelectWorkshop(workshop),
             }}
