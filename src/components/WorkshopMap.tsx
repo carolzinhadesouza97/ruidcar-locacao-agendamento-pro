@@ -1,41 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
-import { Workshop } from '@/data/workshops';
-import { Button } from '@/components/ui/button';
-import { Navigation } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { Workshop } from '@/types/workshops';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { findNearestWorkshops } from '@/utils/distance';
-
-// Fix for default markers
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Custom icons
-const workshopIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const userLocationIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+import MapControls from './map/MapControls';
+import MapUpdater from './map/MapUpdater';
+import WorkshopPopup from './map/WorkshopPopup';
+import { userLocationIcon, workshopIcon } from './map/MapIcons';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
@@ -44,21 +19,9 @@ interface WorkshopMapProps {
   onUpdateNearestWorkshops?: (workshops: Workshop[]) => void;
 }
 
-// Component to handle map center updates
-const MapUpdater: React.FC<{ center: L.LatLngExpression; zoom: number }> = ({ center, zoom }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, zoom, map]);
-  
-  return null;
-};
-
 const WorkshopMap: React.FC<WorkshopMapProps> = ({
   onSelectWorkshop,
   workshops,
-  onSchedule,
   onUpdateNearestWorkshops
 }) => {
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
@@ -130,26 +93,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
 
   return (
     <div className="h-full w-full relative">
-      <div className="absolute top-4 right-4 z-10 flex gap-2">
-        {userLocation && (
-          <Button 
-            onClick={toggleWorkshopsDisplay}
-            className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
-            size={isMobile ? "sm" : "default"}
-          >
-            {showAllWorkshops ? 'Mostrar 5 Mais Próximas' : 'Mostrar Todas'}
-          </Button>
-        )}
-        <Button 
-          onClick={handleLocateWorkshops}
-          className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
-          disabled={isLocating}
-          size={isMobile ? "sm" : "default"}
-        >
-          <Navigation className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
-          {isLocating ? 'Localizando...' : 'Localizar Oficinas'}
-        </Button>
-      </div>
+      <MapControls 
+        userLocation={userLocation}
+        showAllWorkshops={showAllWorkshops}
+        isLocating={isLocating}
+        onToggleDisplay={toggleWorkshopsDisplay}
+        onLocate={handleLocateWorkshops}
+        isMobile={isMobile}
+      />
       
       <MapContainer
         style={{ width: '100%', height: '100%' }}
@@ -168,7 +119,18 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
           >
-            <Popup>Sua localização</Popup>
+            <WorkshopPopup 
+              workshop={{
+                id: 'user-location',
+                name: 'Sua localização',
+                address: '',
+                lat: userLocation.lat,
+                lng: userLocation.lng,
+                phone: '',
+                distance: 0
+              } as Workshop} 
+              onSelectWorkshop={() => {}}
+            />
           </Marker>
         )}
 
@@ -180,18 +142,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
               click: () => onSelectWorkshop(workshop),
             }}
           >
-            <Popup>
-              <div className="p-1 max-w-[200px] xs:max-w-xs sm:p-2">
-                <h3 className="font-semibold text-sm sm:mb-2">{workshop.name}</h3>
-                <p className="text-xs sm:text-sm text-gray-700 mb-1 sm:mb-2">{workshop.address}</p>
-                <p className="text-xs sm:text-sm text-gray-700 mb-1 sm:mb-2">{workshop.phone || 'Telefone não disponível'}</p>
-                {workshop.distance && (
-                  <p className="text-xs sm:text-sm text-brand-orange">
-                    {workshop.distance.toFixed(1)} km de distância
-                  </p>
-                )}
-              </div>
-            </Popup>
+            <WorkshopPopup workshop={workshop} onSelectWorkshop={onSelectWorkshop} />
           </Marker>
         ))}
       </MapContainer>
