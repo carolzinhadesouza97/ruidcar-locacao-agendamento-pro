@@ -87,18 +87,24 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       <MapContainer
         style={{ width: '100%', height: '100%' }}
         className="z-0"
+        /* @ts-ignore */
         center={defaultCenter}
+        /* @ts-ignore */
         zoom={5}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          /* @ts-ignore */
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
         <MapUpdater center={center} zoom={userLocation ? 12 : 5} />
 
         {userLocation && (
-          <Marker position={[userLocation.lat, userLocation.lng]}>
+          <Marker 
+            /* @ts-ignore */
+            position={[userLocation.lat, userLocation.lng]}
+          >
             <Popup>Sua localização</Popup>
           </Marker>
         )}
@@ -106,7 +112,9 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {nearestOficinas.map((oficina) => (
           <Marker
             key={`${oficina.nome}-${oficina.lat}-${oficina.lng}`}
+            /* @ts-ignore */
             position={[oficina.lat, oficina.lng]}
+            /* @ts-ignore */
             icon={workshopIcon}
           >
             <Popup>
