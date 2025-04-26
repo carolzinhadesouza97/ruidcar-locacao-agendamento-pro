@@ -1,28 +1,5 @@
+import { Workshop } from '@/types/workshop';
 
-export interface Workshop {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  lat: number;
-  lng: number;
-  phone: string;
-  email: string;
-  pricePopular: number;
-  priceMedium: number;
-  priceImported: number;
-  rating: number;
-  openHours: {
-    weekdays: string;
-    saturday: string;
-    sunday: string;
-  };
-  distance?: number;
-}
-
-// Mock data for workshops
 export const workshopsData: Workshop[] = [
   {
     id: "1",
@@ -194,12 +171,36 @@ export const workshopsData: Workshop[] = [
   },
 ];
 
-// Helper function to get workshop by ID
+const additionalWorkshops: Workshop[] = [
+  {
+    id: "w1",
+    name: "Bosch Diesel Service - Manivela Bombas Injetoras",
+    address: "R. Cel. Pedroso, 155 - Centro",
+    city: "Bagé",
+    state: "RS",
+    zipCode: "96400-240",
+    lat: -31.33927471515333,
+    lng: -54.10606481367973,
+    phone: "05332474094",
+    email: "contato@manivela.com.br",
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado",
+    },
+  },
+];
+
+export const allWorkshops: Workshop[] = [...workshopsData, ...additionalWorkshops];
+
 export const getWorkshopById = (id: string): Workshop | undefined => {
-  return workshopsData.find((workshop) => workshop.id === id);
+  return allWorkshops.find((workshop) => workshop.id === id);
 };
 
-// Helper function to calculate distances from a specific point
 export const calculateDistances = (
   userLat: number,
   userLng: number,
@@ -218,7 +219,6 @@ export const calculateDistances = (
     .sort((a, b) => (a.distance || 0) - (b.distance || 0));
 };
 
-// Calculate distance between two points using Haversine formula
 export function getDistanceFromLatLonInKm(
   lat1: number,
   lon1: number,
