@@ -5,10 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { WorkshopFormInput, workshopFormSchema } from '@/schemas/workshopFormSchema';
-import { BusinessAddressAutocomplete } from './BusinessAddressAutocomplete';
-import { WorkingHoursField } from './WorkingHoursField';
-import { PriceFields } from './PriceFields';
+import { WorkshopFormInput, workshopSchema } from '@/schemas/workshopSchema';
+import { WorkshopFormSections } from './WorkshopFormSections';
 
 interface WorkshopFormProps {
   initialData?: any;
@@ -34,15 +32,16 @@ export const WorkshopForm: React.FC<WorkshopFormProps> = ({
   });
 
   const form = useForm<WorkshopFormInput>({
-    resolver: zodResolver(workshopFormSchema),
+    resolver: zodResolver(workshopSchema),
     defaultValues: {
       name: initialData?.name || '',
+      email: initialData?.email || '',
+      password: '',
       address: initialData?.address || '',
       city: initialData?.city || '',
       state: initialData?.state || '',
       zipCode: initialData?.zip_code || '',
       phone: initialData?.phone || '',
-      website: initialData?.website || '',
       pricePopular: initialData?.price_popular?.toString() || '',
       priceMedium: initialData?.price_medium?.toString() || '',
       priceImported: initialData?.price_imported?.toString() || '',
@@ -61,21 +60,7 @@ export const WorkshopForm: React.FC<WorkshopFormProps> = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <BusinessAddressAutocomplete 
-          form={form} 
-          onBusinessSelected={(business) => {
-            if (business.openingHours) {
-              setWorkingHours(business.openingHours);
-            }
-          }}
-        />
-        
-        <WorkingHoursField 
-          value={workingHours} 
-          onChange={setWorkingHours} 
-        />
-        
-        <PriceFields form={form} />
+        <WorkshopFormSections form={form} />
         
         <div className="flex justify-end gap-2 pt-4">
           <Button 
