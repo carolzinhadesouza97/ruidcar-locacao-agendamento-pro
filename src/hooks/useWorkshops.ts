@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Workshop, WorkshopDTO } from '@/types/workshop';
-import { convertDTOToWorkshop } from '@/utils/workshopConverters';
+import { Workshop } from '@/types/workshop';
+import { convertDTOToWorkshop } from '@/utils/workshopDataConverter';
 import { toast } from 'sonner';
 import { PostgrestError } from '@supabase/supabase-js';
 
@@ -20,10 +20,12 @@ export const useWorkshops = (userId: string) => {
       
       if (error) throw error as PostgrestError;
       
-      const workshopsData = (data as unknown as WorkshopDTO[]) ?? [];
-      const typedWorkshops = workshopsData.map(convertDTOToWorkshop);
-      
-      setWorkshops(typedWorkshops);
+      if (data) {
+        const typedWorkshops = data.map(item => convertDTOToWorkshop(item));
+        setWorkshops(typedWorkshops);
+      } else {
+        setWorkshops([]);
+      }
     } catch (error: any) {
       console.error('Erro ao carregar dados:', error);
       toast.error('Erro ao carregar oficinas');

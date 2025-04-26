@@ -41,7 +41,7 @@ export interface ConvertedWorkshop {
   price_medium: number;
   price_imported: number;
   rating: number;
-  open_hours: OpenHours;
+  open_hours: Record<string, string>; // Changed from OpenHours to Record<string, string>
   openHours: OpenHours;
   distance?: number;
   permite_agendamento: boolean;

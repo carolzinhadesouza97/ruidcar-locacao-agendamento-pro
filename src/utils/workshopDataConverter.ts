@@ -1,3 +1,3 @@
 
-export { convertToStandardWorkshop } from './workshopConverters';
+export { convertToStandardWorkshop, convertDTOToWorkshop } from './workshopConverters';
 export type { LegacyWorkshopData, ConvertedWorkshop } from '@/types/workshopTypes';

@@ -2,7 +2,11 @@
 import { Json } from '@/integrations/supabase/types';
 
 // Base types for data handling
-export type OpenHours = Record<string, string>;
+export type OpenHours = {
+  weekdays: string;
+  saturday: string;
+  sunday: string;
+};
 
 export interface WorkshopDTO {
   id: string;
@@ -27,5 +31,7 @@ export interface WorkshopDTO {
 }
 
 export interface Workshop extends Omit<WorkshopDTO, 'open_hours'> {
-  open_hours: OpenHours;
+  open_hours: Record<string, string>;
+  openHours: OpenHours;
+  distance?: number;
 }
