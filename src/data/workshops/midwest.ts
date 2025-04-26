@@ -12,9 +12,9 @@ export const midwestWorkshops: Workshop[] = [
     email: "",
     lat: -16.3521759,
     lng: -48.9599017,
-    pricePopular: ,
-    priceMedium: ,
-    priceImported: ,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
     rating: 4.5,
     openHours: {
       weekdays: "8:00 - 18:00",
