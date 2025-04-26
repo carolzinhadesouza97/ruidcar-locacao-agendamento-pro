@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,7 +73,7 @@ export const useWorkshopRegistration = () => {
         .from('workshops')
         .insert({
           name: data.name,
-          email: user.email, // Use logged in user's email
+          email: user.email,
           address: data.address,
           city: data.city,
           state: data.state,
@@ -90,7 +89,7 @@ export const useWorkshopRegistration = () => {
             saturday: '08:00 - 12:00',
             sunday: 'Fechado',
           },
-          owner_id: user.id, // Add owner_id field with the authenticated user's ID
+          owner_id: user.id,
         })
         .select()
         .single();
@@ -140,4 +139,3 @@ export const useWorkshopRegistration = () => {
 
   return { handleRegistration, isSubmitting };
 };
-

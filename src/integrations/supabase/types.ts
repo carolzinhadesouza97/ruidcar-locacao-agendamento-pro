@@ -53,6 +53,7 @@ export type Database = {
           lng: number
           name: string
           open_hours: Json
+          owner_id: string | null
           phone: string
           price_imported: number
           price_medium: number
@@ -73,6 +74,7 @@ export type Database = {
           lng: number
           name: string
           open_hours: Json
+          owner_id?: string | null
           phone: string
           price_imported: number
           price_medium: number
@@ -93,6 +95,7 @@ export type Database = {
           lng?: number
           name?: string
           open_hours?: Json
+          owner_id?: string | null
           phone?: string
           price_imported?: number
           price_medium?: number
