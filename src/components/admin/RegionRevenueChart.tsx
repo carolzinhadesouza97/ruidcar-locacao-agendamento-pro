@@ -3,8 +3,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface RegionData {
-  region: string;
-  revenue: number;
+  name: string;
+  valor: number;
 }
 
 interface RegionRevenueChartProps {
@@ -30,7 +30,7 @@ export const RegionRevenueChart = ({ data }: RegionRevenueChartProps) => {
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="region" />
+              <XAxis dataKey="name" />
               <YAxis 
                 tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
               />
@@ -38,7 +38,7 @@ export const RegionRevenueChart = ({ data }: RegionRevenueChartProps) => {
                 formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Faturamento']}
               />
               <Legend />
-              <Bar dataKey="revenue" name="Faturamento" fill="#8884d8" />
+              <Bar dataKey="valor" name="Faturamento" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
