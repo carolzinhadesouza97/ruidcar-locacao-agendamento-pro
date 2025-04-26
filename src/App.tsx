@@ -34,16 +34,14 @@ const App = () => (
             <Route path="/verify" element={<VerifyEmail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path="/register-workshop" element={
-              <RegisterWorkshop />
-            } />
+            <Route path="/register-workshop" element={<RegisterWorkshop />} />
             <Route path="/dashboard" element={
               <PrivateRoute>
                 <Dashboard />
               </PrivateRoute>
             } />
             <Route path="/admin" element={
-              <RoleProtectedRoute requiredRole="ADMIN">
+              <RoleProtectedRoute requiredRole="admin">
                 <AdminDashboard />
               </RoleProtectedRoute>
             } />
