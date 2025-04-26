@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Appointment } from '@/data/appointments';
+import { toast } from 'sonner';
 
 interface PaymentDialogProps {
   isOpen: boolean;

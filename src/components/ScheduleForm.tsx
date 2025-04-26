@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -5,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar as CalendarIcon } from "lucide-react";
-import { Workshop } from '@/data/workshops';
-import { createAppointment } from '@/data/appointments';
+import { Workshop } from '@/types/workshop';
+import { createAppointment, Appointment } from '@/data/appointments';
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PaymentDialog } from './workshop/PaymentDialog';

@@ -22,6 +22,8 @@ export interface WorkshopDTO {
   approved: boolean | null;
   created_at: string | null;
   website: string | null;
+  permite_agendamento: boolean | null;
+  valor_diagnostico: number | null;
 }
 
 export interface Workshop extends Omit<WorkshopDTO, 'open_hours'> {
