@@ -21,10 +21,9 @@ export interface WorkshopDTO {
   price_imported: number;
   approved: boolean | null;
   created_at: string | null;
-  website?: string | null;
+  website: string | null;
 }
 
-export interface Workshop extends Omit<WorkshopDTO, 'open_hours' | 'website'> {
+export interface Workshop extends Omit<WorkshopDTO, 'open_hours'> {
   open_hours: OpenHours;
-  website: string;
 }

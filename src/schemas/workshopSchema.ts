@@ -13,6 +13,7 @@ export const workshopSchema = z.object({
     .regex(/^[0-9]+$/, 'CEP deve conter apenas números')
     .nonempty('CEP é obrigatório'),
   phone: z.string().min(10, 'Telefone inválido').nonempty('Telefone é obrigatório'),
+  website: z.string().url('Website inválido').optional().or(z.literal('')),
   pricePopular: z.string().min(1, 'Preço é obrigatório')
     .refine(val => !isNaN(parseFloat(val.replace(',', '.'))), {
       message: 'Formato inválido, insira um valor numérico'

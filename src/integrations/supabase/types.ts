@@ -62,6 +62,7 @@ export type Database = {
           rating: number | null
           state: string
           updated_at: string | null
+          website: string | null
           zip_code: string
         }
         Insert: {
@@ -84,6 +85,7 @@ export type Database = {
           rating?: number | null
           state: string
           updated_at?: string | null
+          website?: string | null
           zip_code: string
         }
         Update: {
@@ -106,6 +108,7 @@ export type Database = {
           rating?: number | null
           state?: string
           updated_at?: string | null
+          website?: string | null
           zip_code?: string
         }
         Relationships: []

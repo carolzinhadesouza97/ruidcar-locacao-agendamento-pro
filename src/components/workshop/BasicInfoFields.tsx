@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { WorkshopFormInput } from '@/schemas/workshopSchema';
-import { Phone } from 'lucide-react';
+import { Globe, Mail, Phone } from 'lucide-react';
 
 interface BasicInfoFieldsProps {
   form: UseFormReturn<WorkshopFormInput>;
@@ -39,9 +39,12 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ form }) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Email</FormLabel>
-            <FormControl>
-              <Input type="email" {...field} />
-            </FormControl>
+            <div className="relative">
+              <FormControl>
+                <Input type="email" {...field} />
+              </FormControl>
+              <Mail className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+            </div>
             <FormMessage />
           </FormItem>
         )}
@@ -76,6 +79,27 @@ export const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ form }) => {
                 />
               </FormControl>
               <Phone className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="website"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Website (opcional)</FormLabel>
+            <div className="relative">
+              <FormControl>
+                <Input 
+                  {...field} 
+                  type="url" 
+                  placeholder="https://www.seusite.com.br"
+                />
+              </FormControl>
+              <Globe className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
             </div>
             <FormMessage />
           </FormItem>
