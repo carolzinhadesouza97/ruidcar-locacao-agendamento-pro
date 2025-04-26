@@ -131,7 +131,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
             }}
           >
             {selectedOficina && selectedOficina === oficina && (
-              <Popup onClose={handleClosePopup}>
+              <Popup 
+                eventHandlers={{
+                  close: handleClosePopup
+                }}
+              >
                 <div className="p-2 max-w-xs">
                   <h3 className="font-semibold mb-2">{oficina.nome}</h3>
                   <p className="text-sm text-gray-700 mb-2">{oficina.endereco}</p>
