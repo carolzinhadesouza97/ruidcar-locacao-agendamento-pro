@@ -5,16 +5,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { WorkshopFormInput } from '@/schemas/workshopSchema';
 import { useMapboxServices } from '@/hooks/useMapboxServices';
+import { useAuth } from '@/hooks/useAuth';
 
 export const useWorkshopRegistration = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const { isLoaded, geocodeAddress } = useMapboxServices();
+  const { user } = useAuth();
 
   const handleRegistration = async (data: WorkshopFormInput) => {
     if (isSubmitting) {
       console.log("Submissão já em andamento, ignorando clique repetido");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Você precisa estar logado para cadastrar uma oficina");
       return;
     }
 
@@ -27,7 +34,6 @@ export const useWorkshopRegistration = () => {
         throw new Error("Serviço de geocodificação indisponível");
       }
       
-      // Primeiro, tente geocodificar o endereço antes de criar o usuário
       const formattedAddress = `${data.address}, ${data.city}, ${data.state}, ${data.zipCode}, Brasil`;
       console.log("Tentando geocodificar endereço:", formattedAddress);
       
@@ -54,24 +60,6 @@ export const useWorkshopRegistration = () => {
         }
       }
       
-      console.log("Criando usuário com email:", data.email);
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (authError) {
-        console.error("Erro na criação do usuário:", authError);
-        throw new Error(`Erro ao criar usuário: ${authError.message}`);
-      }
-
-      if (!authData.user?.id) {
-        console.error("Usuário criado sem ID");
-        throw new Error("Erro interno: usuário criado sem ID");
-      }
-
-      console.log("Usuário criado com sucesso. ID:", authData.user?.id);
-
       // Parse string values to numbers for price fields
       const pricePopular = parseFloat(data.pricePopular.replace(',', '.'));
       const priceMedium = parseFloat(data.priceMedium.replace(',', '.'));
@@ -86,7 +74,7 @@ export const useWorkshopRegistration = () => {
         .from('workshops')
         .insert({
           name: data.name,
-          email: data.email,
+          email: user.email, // Use logged in user's email
           address: data.address,
           city: data.city,
           state: data.state,
@@ -102,6 +90,7 @@ export const useWorkshopRegistration = () => {
             saturday: '08:00 - 12:00',
             sunday: 'Fechado',
           },
+          owner_id: user.id, // Add owner_id field with the authenticated user's ID
         })
         .select()
         .single();
@@ -122,8 +111,8 @@ export const useWorkshopRegistration = () => {
       const { error: linkError } = await supabase
         .from('workshop_accounts')
         .insert({
-          id: authData.user?.id,
-          email: data.email,
+          id: user.id,
+          email: user.email,
           password: data.password,
           workshop_id: workshopData.id,
         });
@@ -151,3 +140,4 @@ export const useWorkshopRegistration = () => {
 
   return { handleRegistration, isSubmitting };
 };
+
