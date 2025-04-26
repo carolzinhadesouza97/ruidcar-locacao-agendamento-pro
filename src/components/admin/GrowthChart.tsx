@@ -2,10 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { GrowthData } from '@/types/adminDashboard';
+import { MappedGrowthData } from '@/types/adminDashboard';
 
 interface GrowthChartProps {
-  data: GrowthData[];
+  data: MappedGrowthData[];
 }
 
 export const GrowthChart = ({ data }: GrowthChartProps) => {
@@ -26,18 +26,16 @@ export const GrowthChart = ({ data }: GrowthChartProps) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Area type="monotone" dataKey="workshops" stackId="1" stroke="#8884d8" fill="#8884d8" name="Oficinas" />
-              <Area type="monotone" dataKey="users" stackId="2" stroke="#82ca9d" fill="#82ca9d" name="Usuários" />
-              {data[0]?.agendamentos !== undefined && (
-                <Area 
-                  type="monotone" 
-                  dataKey="agendamentos" 
-                  stackId="3" 
-                  stroke="#ffc658" 
-                  fill="#ffc658" 
-                  name="Agendamentos" 
-                />
-              )}
+              <Area type="monotone" dataKey="oficinas" stackId="1" stroke="#8884d8" fill="#8884d8" name="Oficinas" />
+              <Area type="monotone" dataKey="usuarios" stackId="2" stroke="#82ca9d" fill="#82ca9d" name="Usuários" />
+              <Area 
+                type="monotone" 
+                dataKey="agendamentos" 
+                stackId="3" 
+                stroke="#ffc658" 
+                fill="#ffc658" 
+                name="Agendamentos" 
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

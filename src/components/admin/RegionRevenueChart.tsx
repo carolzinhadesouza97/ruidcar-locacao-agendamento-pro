@@ -2,10 +2,10 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RegionData } from '@/types/adminDashboard';
+import { MappedRegionData } from '@/types/adminDashboard';
 
 interface RegionRevenueChartProps {
-  data: RegionData[];
+  data: MappedRegionData[];
 }
 
 export const RegionRevenueChart = ({ data }: RegionRevenueChartProps) => {
@@ -22,13 +22,13 @@ export const RegionRevenueChart = ({ data }: RegionRevenueChartProps) => {
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="region" />
+              <XAxis dataKey="name" />
               <YAxis />
               <Tooltip 
                 formatter={(value) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor']} 
               />
               <Legend />
-              <Bar dataKey="revenue" fill="#8884d8" name="Faturamento" />
+              <Bar dataKey="valor" fill="#8884d8" name="Faturamento" />
             </BarChart>
           </ResponsiveContainer>
         </div>

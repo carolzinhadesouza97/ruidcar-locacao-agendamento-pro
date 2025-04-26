@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { getMockDashboardData } from '@/data/adminDashboard';
 import AdminDashboardHeader from '@/components/admin/AdminDashboardHeader';
@@ -10,7 +11,7 @@ import WorkshopRankingTable from '@/components/admin/WorkshopRankingTable';
 import UserAnalytics from '@/components/admin/UserAnalytics';
 import WorkshopDensityMap from '@/components/admin/WorkshopDensityMap';
 import { toast } from 'sonner';
-import { GrowthData, RegionData, MappedGrowthData, MappedRegionData } from '@/types/adminDashboard';
+import { MappedGrowthData, MappedRegionData } from '@/types/adminDashboard';
 
 const AdminDashboard = () => {
   const [period, setPeriod] = useState('30');
@@ -106,7 +107,7 @@ const AdminDashboard = () => {
     date: item.date,
     oficinas: item.workshops,
     usuarios: item.users,
-    agendamentos: item.workshops + Math.floor(Math.random() * 20)
+    agendamentos: item.agendamentos || (item.workshops + Math.floor(Math.random() * 20))
   }));
 
   // Map data for RegionRevenueChart component with proper type
