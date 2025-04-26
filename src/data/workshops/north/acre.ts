@@ -11,6 +11,7 @@ export const acreWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "",
     email: "",
+    website: "",
     lat: -9.966927100000001,
     lng: -67.819428,
     pricePopular: 200,

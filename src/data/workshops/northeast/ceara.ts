@@ -11,6 +11,7 @@ export const cearaWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "",
     email: "",
+    website: "",
     lat: -3.5539926303742124,
     lng: -40.40526375273637,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const cearaWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Ceará workshops
+  }
 ];

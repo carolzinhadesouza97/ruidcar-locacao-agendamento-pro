@@ -11,6 +11,7 @@ export const amapaWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "",
     email: "",
+    website: "",
     lat: 0.08766478313598906,
     lng: -51.05917751234372,
     pricePopular: 200,

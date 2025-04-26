@@ -11,6 +11,7 @@ export const pernambucoWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "558737622597",
     email: "",
+    website: "",
     lat: -8.889187499999998,
     lng: -36.4964521,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const pernambucoWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Pernambuco workshops
+  }
 ];

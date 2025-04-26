@@ -11,6 +11,7 @@ export const amazonasWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "",
     email: "",
+    website: "",
     lat: -3.119042499999999,
     lng: -60.0074407,
     pricePopular: 200,

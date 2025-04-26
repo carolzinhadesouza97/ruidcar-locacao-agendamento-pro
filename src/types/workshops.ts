@@ -1,9 +1,5 @@
 
-export interface OpenHours {
-  weekdays: string;
-  saturday: string;
-  sunday: string;
-}
+import { OpenHours } from './workshop';
 
 export interface Workshop {
   id: string;
@@ -16,7 +12,7 @@ export interface Workshop {
   lng: number;
   phone: string;
   email: string;
-  website: string; // Changed from optional to required to match other Workshop type
+  website: string;
   price_popular: number;
   price_medium: number;
   price_imported: number;
@@ -24,10 +20,10 @@ export interface Workshop {
   open_hours: Record<string, string>;
   openHours: OpenHours;
   distance?: number;
-  permite_agendamento?: boolean | null;
-  valor_diagnostico?: number | null;
-  created_at: string | null; // Required to match other Workshop type
-  approved: boolean | null; // Required to match other Workshop type
+  permite_agendamento: boolean | null;
+  valor_diagnostico: number | null;
+  created_at: string | null;
+  approved: boolean | null;
 }
 
 export interface Region {

@@ -11,6 +11,7 @@ export const matoGrossoWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "556533266138",
     email: "",
+    website: "",
     lat: -14.6301113,
     lng: -57.50013180000001,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const matoGrossoWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Mato Grosso workshops
+  }
 ];

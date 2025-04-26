@@ -12,7 +12,7 @@ export interface LegacyWorkshopData {
   lng: number;
   phone: string;
   email: string;
-  website?: string;
+  website: string;
   pricePopular: number;
   priceMedium: number;
   priceImported: number;
@@ -21,9 +21,6 @@ export interface LegacyWorkshopData {
   distance?: number;
 }
 
-/**
- * Converts legacy workshop data format to the standardized Workshop type
- */
 export function convertToStandardWorkshop(data: LegacyWorkshopData): Workshop {
   return {
     id: data.id,
@@ -36,7 +33,7 @@ export function convertToStandardWorkshop(data: LegacyWorkshopData): Workshop {
     lng: data.lng,
     phone: data.phone,
     email: data.email,
-    website: data.website || '', // Ensure website is always a string, never undefined
+    website: data.website || '',
     price_popular: data.pricePopular,
     price_medium: data.priceMedium,
     price_imported: data.priceImported,
@@ -48,9 +45,9 @@ export function convertToStandardWorkshop(data: LegacyWorkshopData): Workshop {
     },
     openHours: data.openHours,
     distance: data.distance,
-    permite_agendamento: false, // Default
-    valor_diagnostico: null, // Default
-    created_at: new Date().toISOString(), // Ensure this is always set
-    approved: true // Ensure this is always set
+    permite_agendamento: false,
+    valor_diagnostico: null,
+    created_at: new Date().toISOString(),
+    approved: true
   };
 }

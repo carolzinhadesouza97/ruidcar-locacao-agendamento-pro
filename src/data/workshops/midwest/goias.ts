@@ -11,6 +11,7 @@ export const goiasWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "556233134359",
     email: "",
+    website: "",
     lat: -16.3521759,
     lng: -48.9599017,
     pricePopular: 200,
@@ -32,6 +33,7 @@ export const goiasWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "556234135581",
     email: "",
+    website: "",
     lat: -16.6900702,
     lng: -49.2526266,
     pricePopular: 200,
@@ -43,6 +45,5 @@ export const goiasWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Goiás workshops
+  }
 ];

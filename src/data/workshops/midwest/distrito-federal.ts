@@ -11,6 +11,7 @@ export const dfWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "5561992412640",
     email: "",
+    website: "",
     lat: -15.8647551,
     lng: -48.0571068,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const dfWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional DF workshops
+  }
 ];

@@ -11,6 +11,7 @@ export const maranhaoWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "559831813922",
     email: "",
+    website: "",
     lat: -2.5717884,
     lng: -44.22556489999999,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const maranhaoWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Maranhão workshops
+  }
 ];

@@ -11,6 +11,7 @@ export const rioGrandeNorteWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "5584991352325",
     email: "",
+    website: "",
     lat: -5.8136014,
     lng: -35.2167701,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const rioGrandeNorteWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Rio Grande do Norte workshops
+  }
 ];

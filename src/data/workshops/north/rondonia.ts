@@ -11,6 +11,7 @@ export const rondoniaWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "",
     email: "",
+    website: "",
     lat: -10.2140815,
     lng: -63.8252647,
     pricePopular: 200,

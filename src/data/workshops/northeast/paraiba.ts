@@ -11,6 +11,7 @@ export const paraibaWorkshops: LegacyWorkshopData[] = [
     zip_code: "",
     phone: "558334312001",
     email: "",
+    website: "",
     lat: -6.7913327,
     lng: -37.7901808,
     pricePopular: 200,
@@ -22,6 +23,5 @@ export const paraibaWorkshops: LegacyWorkshopData[] = [
       saturday: "8:00 - 12:00",
       sunday: "Fechado"
     }
-  },
-  // ... Additional Paraíba workshops
+  }
 ];
