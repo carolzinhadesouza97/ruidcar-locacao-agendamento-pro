@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,6 +9,7 @@ import { Workshop } from '@/data/workshops';
 import { createAppointment } from '@/data/appointments';
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { PaymentDialog } from './workshop/PaymentDialog';
 
 import {
   Form,
@@ -39,10 +39,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// License plate validation regex for Brazilian plates (old and new formats)
 const licensePlateRegex = /^[A-Z]{3}[0-9]{1}[A-Z0-9]{1}[0-9]{2}$|^[A-Z]{3}[0-9]{4}$/;
 
-// Schema for form validation
 const scheduleFormSchema = z.object({
   customerName: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   contactPhone: z.string().min(10, { message: "Telefone inválido" }),
@@ -63,7 +61,9 @@ interface ScheduleFormProps {
 
 const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [showPayment, setShowPayment] = useState(false);
+  const [appointmentData, setAppointmentData] = useState<Partial<Appointment> | null>(null);
+
   const form = useForm<ScheduleFormValues>({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues: {
@@ -76,7 +76,6 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
     },
   });
 
-  // Get the price based on car type selection
   const getPrice = (carType: string): number => {
     switch (carType) {
       case "popular":
@@ -90,7 +89,6 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
     }
   };
 
-  // Get available time slots for the selected date
   const getAvailableTimeSlots = (): string[] => {
     return [
       "08:00", "09:00", "10:00", "11:00", 
@@ -98,46 +96,29 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
     ];
   };
 
-  // Handle form submission
   const onSubmit = async (data: ScheduleFormValues) => {
-    setIsSubmitting(true);
-    
-    try {
-      // In a real app, this would be an API call
-      const price = getPrice(data.carType);
-      const appointment = createAppointment({
-        workshopId: workshop.id,
-        customerName: data.customerName,
-        contactPhone: data.contactPhone,
-        licensePlate: data.licensePlate,
-        carModel: data.carModel,
-        comment: data.comment,
-        date: format(data.date, 'yyyy-MM-dd'),
-        time: data.time,
-        price,
-        carType: data.carType as any,
-      });
-      
-      // Simulate a server request
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast.success("Agendamento realizado com sucesso!", {
-        description: `Seu agendamento para ${format(data.date, 'dd/MM/yyyy')} às ${data.time} foi confirmado.`,
-      });
-      
-      form.reset();
-      onScheduleSuccess();
-    } catch (error) {
-      toast.error("Erro ao agendar", {
-        description: "Não foi possível realizar o agendamento. Tente novamente.",
-      });
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
+    if (!workshop.permite_agendamento) {
+      toast.error('Esta oficina não está aceitando agendamentos no momento.');
+      return;
     }
+
+    const appointmentData = {
+      workshopId: workshop.id,
+      customerName: data.customerName,
+      contactPhone: data.contactPhone,
+      licensePlate: data.licensePlate,
+      carModel: data.carModel,
+      comment: data.comment,
+      date: format(data.date, 'yyyy-MM-dd'),
+      time: data.time,
+      price: currentPrice,
+      carType: data.carType,
+    };
+
+    setAppointmentData(appointmentData);
+    setShowPayment(true);
   };
 
-  // Watch the carType field to display the price
   const watchCarType = form.watch("carType");
   const currentPrice = getPrice(watchCarType);
 
@@ -319,7 +300,6 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) => {
-                            // Disable past dates and Sundays
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
                             return (
@@ -411,6 +391,13 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
           </form>
         </Form>
       </CardContent>
+      <PaymentDialog
+        isOpen={showPayment}
+        onClose={() => setShowPayment(false)}
+        appointmentData={appointmentData!}
+        workshopName={workshop.name}
+        diagnosticValue={workshop.valor_diagnostico || 50}
+      />
     </Card>
   );
 };

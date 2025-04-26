@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,8 @@ import Unauthorized from "./pages/Unauthorized";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import RoleProtectedRoute from "./components/auth/RoleProtectedRoute";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,8 @@ const App = () => (
                 <AdminDashboard />
               </RoleProtectedRoute>
             } />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
