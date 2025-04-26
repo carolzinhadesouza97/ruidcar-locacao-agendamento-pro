@@ -1,6 +1,4 @@
-
-import { useState, useEffect } from 'react';
-import { Building, Sparkles, Users, DollarSign } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { getMockDashboardData } from '@/data/adminDashboard';
 import AdminDashboardHeader from '@/components/admin/AdminDashboardHeader';
 import AdminMetrics from '@/components/admin/AdminMetrics';
@@ -12,6 +10,7 @@ import WorkshopRankingTable from '@/components/admin/WorkshopRankingTable';
 import UserAnalytics from '@/components/admin/UserAnalytics';
 import WorkshopDensityMap from '@/components/admin/WorkshopDensityMap';
 import { toast } from 'sonner';
+import { GrowthData, RegionData, MappedGrowthData, MappedRegionData } from '@/types/adminDashboard';
 
 const AdminDashboard = () => {
   const [period, setPeriod] = useState('30');
@@ -24,8 +23,6 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // In a real implementation, this would be an API call
-        // For now, we're using mock data
         const data = getMockDashboardData(period);
         setDashboardData(data);
       } catch (error) {
@@ -104,16 +101,16 @@ const AdminDashboard = () => {
     return 0;
   });
 
-  // Map data for GrowthChart component
-  const mappedGrowthData = dashboardData.growthOverTime.map(item => ({
+  // Map data for GrowthChart component with proper type
+  const mappedGrowthData: MappedGrowthData[] = dashboardData.growthOverTime.map(item => ({
     date: item.date,
     oficinas: item.workshops,
     usuarios: item.users,
-    agendamentos: item.workshops + Math.floor(Math.random() * 20) // Adding agendamentos as it's missing in the original data
+    agendamentos: item.workshops + Math.floor(Math.random() * 20)
   }));
 
-  // Map data for RegionRevenueChart component
-  const mappedRegionData = dashboardData.revenueByRegion.map(item => ({
+  // Map data for RegionRevenueChart component with proper type
+  const mappedRegionData: MappedRegionData[] = dashboardData.revenueByRegion.map(item => ({
     name: item.region,
     valor: item.revenue
   }));
