@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -5,7 +6,7 @@ import WorkshopMap from "@/components/WorkshopMap";
 import WorkshopList from "@/components/WorkshopList";
 import WorkshopDetails from "@/components/WorkshopDetails";
 import ScheduleForm from "@/components/ScheduleForm";
-import { workshopsData, Workshop } from "@/data/workshops";
+import { allWorkshops, Workshop } from "@/data/workshops";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
