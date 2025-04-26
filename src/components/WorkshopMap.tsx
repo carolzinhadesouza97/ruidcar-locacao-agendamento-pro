@@ -27,6 +27,16 @@ const workshopIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
+// Custom icon for user location
+const userLocationIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
   workshops: Workshop[];
@@ -77,6 +87,10 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     setSelectedOficina(oficina);
   };
 
+  const handleWorkshopMarkerClick = (workshop: Workshop) => {
+    onSelectWorkshop(workshop);
+  };
+
   const handleClosePopup = () => {
     setSelectedOficina(null);
   };
@@ -97,14 +111,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       <MapContainer
         style={{ width: '100%', height: '100%' }}
         className="z-0"
-        // @ts-ignore
         center={defaultCenter}
-        // @ts-ignore
         zoom={5}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          // @ts-ignore
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
@@ -112,19 +123,18 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
 
         {userLocation && (
           <Marker 
-            // @ts-ignore
             position={[userLocation.lat, userLocation.lng]}
+            icon={userLocationIcon}
           >
             <Popup>Sua localização</Popup>
           </Marker>
         )}
 
+        {/* Display nearest oficinas */}
         {nearestOficinas.map((oficina) => (
           <Marker
             key={`${oficina.nome}-${oficina.lat}-${oficina.lng}`}
-            // @ts-ignore
             position={[oficina.lat, oficina.lng]}
-            // @ts-ignore
             icon={workshopIcon}
             eventHandlers={{
               click: () => handleMarkerClick(oficina),
@@ -146,6 +156,31 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
                 </div>
               </Popup>
             )}
+          </Marker>
+        ))}
+        
+        {/* Display nearest workshops */}
+        {nearestWorkshops.map((workshop) => (
+          <Marker
+            key={`${workshop.name}-${workshop.lat}-${workshop.lng}`}
+            position={[workshop.lat, workshop.lng]}
+            icon={workshopIcon}
+            eventHandlers={{
+              click: () => handleWorkshopMarkerClick(workshop),
+            }}
+          >
+            <Popup>
+              <div className="p-2 max-w-xs">
+                <h3 className="font-semibold mb-2">{workshop.name}</h3>
+                <p className="text-sm text-gray-700 mb-2">{workshop.address}</p>
+                <p className="text-sm text-gray-700 mb-2">{workshop.phone || 'Telefone não disponível'}</p>
+                {workshop.distance && (
+                  <p className="text-sm text-brand-orange">
+                    {workshop.distance.toFixed(1)} km de distância
+                  </p>
+                )}
+              </div>
+            </Popup>
           </Marker>
         ))}
       </MapContainer>

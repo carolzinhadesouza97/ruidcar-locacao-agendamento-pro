@@ -4,8 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-// Definição da URL base do site
-const BASE_URL = "https://preview--ruidcar-locacao-agendamento-pro.lovable.app";
+// Use the environment variable for the BASE_URL
+const BASE_URL = import.meta.env.VITE_APP_URL || "https://preview--ruidcar-locacao-agendamento-pro.lovable.app";
 
 export type UserRole = 'admin' | 'oficina' | 'user';
 

@@ -18,7 +18,7 @@ const Index = () => {
   // State for tracking the selected workshop
   const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
   // State for the workshops to display in the list
-  const [workshopsToDisplay, setWorkshopsToDisplay] = useState<Workshop[]>([]);
+  const [workshopsToDisplay, setWorkshopsToDisplay] = useState<Workshop[]>(workshopsData.slice(0, 5));
   // State for the current view in the panel
   const [currentView, setCurrentView] = useState<PanelView>("list");
   // State for mobile sheet open
@@ -34,7 +34,7 @@ const Index = () => {
   // Handle updating the workshops list (e.g., when finding nearest)
   const handleUpdateWorkshops = (workshops: Workshop[]) => {
     console.log("Recebendo oficinas para exibir:", workshops);
-    setWorkshopsToDisplay(workshops);
+    setWorkshopsToDisplay(workshops.length > 0 ? workshops : workshopsData.slice(0, 5));
     setIsSheetOpen(true); // Open the sheet on mobile when workshops are found
     setCurrentView("list"); // Ensure we're showing the list view
   };

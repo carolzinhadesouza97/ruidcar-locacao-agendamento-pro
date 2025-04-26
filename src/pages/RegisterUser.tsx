@@ -1,4 +1,5 @@
 
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,7 +12,7 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useNavigate } from 'react-router-dom';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 // User registration schema
@@ -30,6 +31,7 @@ type UserFormValues = z.infer<typeof userSchema>;
 const RegisterUser = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { signUpWithEmail, signInWithGoogle } = useAuth();
   
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -44,30 +46,25 @@ const RegisterUser = () => {
   const handleRegister = async (data: UserFormValues) => {
     setIsLoading(true);
     try {
-      // Here we'd normally connect to a backend API
-      console.log('Registering user:', data);
+      await signUpWithEmail(data.email, data.password, {
+        name: data.name,
+        role: 'user',
+      });
       
-      // Simulate a registration delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      toast.success('Cadastro realizado com sucesso! Por favor, faça login.');
-      navigate('/');
+      // If successful, navigate to verification page
+      navigate('/verify');
     } catch (error: any) {
       console.error('Error registering user:', error);
-      toast.error(error.message || 'Erro ao cadastrar usuário');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSignInWithGoogle = async () => {
-    setIsLoading(true);
     try {
-      // Mock Google authentication
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.info('Funcionalidade de login com Google será implementada em breve!');
-    } finally {
-      setIsLoading(false);
+      await signInWithGoogle();
+    } catch (error: any) {
+      console.error('Error signing in with Google:', error);
     }
   };
   
