@@ -885,4 +885,22 @@ export const saoPauloWorkshops: LegacyWorkshopData[] = [
     id: "se79",
     name: "Bosch Car Service | Centro Automotivo Rodcar | desde 1975",
     address: "",
-    city: "Taboao
+    city: "Taboao da Serra",
+    state: "SP",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -23.6317542,
+    lng: -46.7018962,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  }
+];
