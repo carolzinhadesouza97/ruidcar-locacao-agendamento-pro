@@ -16,7 +16,7 @@ export interface Workshop {
   lng: number;
   phone: string;
   email: string;
-  website?: string;
+  website: string; // Changed from optional to required to match other Workshop type
   price_popular: number;
   price_medium: number;
   price_imported: number;
@@ -26,8 +26,8 @@ export interface Workshop {
   distance?: number;
   permite_agendamento?: boolean | null;
   valor_diagnostico?: number | null;
-  created_at: string | null; // Changed from optional to required to match other Workshop type
-  approved: boolean | null; // Changed from optional to required to match other Workshop type
+  created_at: string | null; // Required to match other Workshop type
+  approved: boolean | null; // Required to match other Workshop type
 }
 
 export interface Region {

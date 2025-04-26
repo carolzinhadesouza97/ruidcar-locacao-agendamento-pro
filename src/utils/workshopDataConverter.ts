@@ -36,7 +36,7 @@ export function convertToStandardWorkshop(data: LegacyWorkshopData): Workshop {
     lng: data.lng,
     phone: data.phone,
     email: data.email,
-    website: data.website,
+    website: data.website || '', // Ensure website is always a string, never undefined
     price_popular: data.pricePopular,
     price_medium: data.priceMedium,
     price_imported: data.priceImported,
