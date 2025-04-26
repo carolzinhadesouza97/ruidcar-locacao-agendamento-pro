@@ -1,0 +1,312 @@
+import { LegacyWorkshopData } from '@/utils/workshopDataConverter';
+
+export const santaCatarinaWorkshops: LegacyWorkshopData[] = [
+  {
+    id: "s16",
+    name: "Red7 Pneus",
+    address: "BR-470, KM 141, 6811 - Canta Galo, Rio do Sul - SC, 89163-020",
+    city: "Rio do Sul",
+    state: "SC",
+    zip_code: "",
+    phone: "554735255050",
+    email: "",
+    website: "",
+    lat: -27.201761,
+    lng: -49.6329496,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s17",
+    name: "Lotusul Auto Center - #FériasTranquilas",
+    address: "R. Carlos Thiesen, 455 - Centro, Ituporanga - SC, 88400-000",
+    city: "Rio do Sul",
+    state: "SC",
+    zip_code: "",
+    phone: "554735337000",
+    email: "",
+    website: "",
+    lat: -27.4196957,
+    lng: -49.595795,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s18",
+    name: "Faust Imports/ Mecanica Ellite",
+    address: "R. 5 de Outubro, 345 - Salto Norte, Blumenau - SC, 89065-030",
+    city: "Blumenau",
+    state: "SC",
+    zip_code: "",
+    phone: "554733784291",
+    email: "",
+    website: "",
+    lat: -26.869873,
+    lng: -49.09060400000001,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s19",
+    name: "Régis Mecânica",
+    address: "R. José Víctor da Rosa, 993 - Barreiros, São José - SC, 88117-405",
+    city: "Campinas",
+    state: "SC",
+    zip_code: "",
+    phone: "554833751115",
+    email: "",
+    website: "",
+    lat: -27.5790702,
+    lng: -48.61225309999999,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s20",
+    name: "Auto Elétrica e Mecânica Possenti",
+    address: "R. Renato P. Gomes, 20 - Dois Pinheiros, Videira - SC, 89562-182",
+    city: "Videira",
+    state: "SC",
+    zip_code: "",
+    phone: "554935662733",
+    email: "",
+    website: "",
+    lat: -27.0060787,
+    lng: -51.1413421,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s21",
+    name: "Eletromecânica Farenzena.",
+    address: "R. Videira, 154 - Centro, Treze Tílias - SC, 89650-000",
+    city: "Joacaba",
+    state: "SC",
+    zip_code: "",
+    phone: "554935371186",
+    email: "",
+    website: "",
+    lat: -26.9986051,
+    lng: -51.40620010000001,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s22",
+    name: "Auto Center Guaramirim",
+    address: "BR-280, 12940 - Km 56 - Centro, Guaramirim - SC, 89270-000",
+    city: "Guaramirim",
+    state: "SC",
+    zip_code: "",
+    phone: "5547996770588",
+    email: "",
+    website: "",
+    lat: -26.4779764,
+    lng: -48.99993529999999,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s23",
+    name: "AS Suspensōes",
+    address: "R. 2950, 906 - Centro, Balneário Camboriú - SC, 88330-348",
+    city: "Balneario Camboriu",
+    state: "SC",
+    zip_code: "",
+    phone: "554733668191",
+    email: "",
+    website: "",
+    lat: -27.0020085,
+    lng: -48.63470520000001,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s24",
+    name: "Santos Centro Automotivo",
+    address: "",
+    city: "Balneario Camboriu",
+    state: "SC",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -26.9883153,
+    lng: -48.6411052,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s25",
+    name: "Sanone Sistemas Hidraulicos Ltda.",
+    address: "",
+    city: "Mafra",
+    state: "SC",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -26.15398080000001,
+    lng: -49.83473539999999,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s27",
+    name: "Bosch Car Service - Eletro Werlang",
+    address: "",
+    city: "Chapeco",
+    state: "SC",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -27.082201,
+    lng: -53.005478,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s29",
+    name: "Auto Mecânica CD",
+    address: "",
+    city: "Campos Novos",
+    state: "SC",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -27.3933944,
+    lng: -51.2222518,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s37",
+    name: "Mecânica Autocar",
+    address: "",
+    city: "Sao Lourenco dOeste",
+    state: "SC",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -26.6444492,
+    lng: -52.7929687,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  },
+  {
+    id: "s43",
+    name: "Auto elétrica Campinas",
+    address: "",
+    city: "Erechim",
+    state: "RS",
+    zip_code: "",
+    phone: "",
+    email: "",
+    website: "",
+    lat: -27.718403,
+    lng: -52.62451249999999,
+    pricePopular: 200,
+    priceMedium: 300,
+    priceImported: 400,
+    rating: 4.5,
+    openHours: {
+      weekdays: "8:00 - 18:00",
+      saturday: "8:00 - 12:00",
+      sunday: "Fechado"
+    }
+  }
+];

@@ -1,4 +1,3 @@
-
 import { Workshop } from '@/types/workshops';
 import { northWorkshops } from './north';
 import { southWorkshops } from './south';
