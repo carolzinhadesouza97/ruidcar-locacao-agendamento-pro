@@ -1,3 +1,6 @@
+
+import { Workshop } from '@/types/workshops';
+
 export const toRad = (value: number): number => (value * Math.PI) / 180;
 
 export const calculateHaversineDistance = (
