@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Building, Sparkles, Users, DollarSign } from 'lucide-react';
 import { getMockDashboardData } from '@/data/adminDashboard';
