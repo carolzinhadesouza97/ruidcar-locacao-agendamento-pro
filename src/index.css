@@ -6,22 +6,22 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 40%; /* Gray text */
+    --foreground: 0 0% 20%; /* Escurecido para melhor contraste */
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 40%;
+    --card-foreground: 0 0% 20%; /* Escurecido para melhor contraste */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 40%;
+    --popover-foreground: 0 0% 20%; /* Escurecido para melhor contraste */
 
     --primary: 24 100% 50%; /* Brand orange */
     --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 0 0% 40%; /* Gray */
+    --secondary: 0 0% 20%; /* Escurecido para melhor contraste */
     --secondary-foreground: 0 0% 100%; /* White */
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 60%;
+    --muted-foreground: 0 0% 45%; /* Escurecido para melhor contraste */
 
     --accent: 24 100% 95%; /* Light orange */
     --accent-foreground: 24 100% 30%; /* Dark orange */
@@ -29,31 +29,31 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
     --ring: 24 100% 50%; /* Brand orange */
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 40%;
+    --sidebar-foreground: 0 0% 20%; /* Escurecido para melhor contraste */
     --sidebar-primary: 24 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 24 100% 95%;
     --sidebar-accent-foreground: 24 100% 30%;
-    --sidebar-border: 0 0% 90%;
+    --sidebar-border: 0 0% 85%;
     --sidebar-ring: 24 100% 50%;
   }
 
   .dark {
     --background: 0 0% 12%;
-    --foreground: 0 0% 90%;
+    --foreground: 0 0% 95%; /* Mais claro para melhor contraste */
 
     --card: 0 0% 12%;
-    --card-foreground: 0 0% 90%;
+    --card-foreground: 0 0% 95%; /* Mais claro para melhor contraste */
 
     --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 90%;
+    --popover-foreground: 0 0% 95%; /* Mais claro para melhor contraste */
 
     --primary: 24 100% 50%;
     --primary-foreground: 0 0% 100%;
@@ -62,7 +62,7 @@
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 70%;
+    --muted-foreground: 0 0% 80%; /* Mais claro para melhor contraste */
 
     --accent: 24 100% 20%;
     --accent-foreground: 24 100% 80%;
@@ -75,7 +75,7 @@
     --ring: 24 100% 50%;
 
     --sidebar-background: 0 0% 12%;
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-foreground: 0 0% 95%; /* Mais claro para melhor contraste */
     --sidebar-primary: 24 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 24 100% 20%;
@@ -95,7 +95,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-secondary-foreground;
+    @apply font-semibold text-foreground;
   }
   
   h1 {
