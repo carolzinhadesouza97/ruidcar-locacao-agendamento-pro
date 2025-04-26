@@ -85,10 +85,10 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <MapContainer
+        center={defaultCenter}
+        zoom={5}
         style={{ width: '100%', height: '100%' }}
         className="z-0"
-        center={defaultCenter as [number, number]}
-        zoom={5}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
