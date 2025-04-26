@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import WorkshopMap from "@/components/WorkshopMap";
@@ -10,6 +10,7 @@ import { allWorkshops, Workshop } from "@/data/workshops";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type PanelView = "list" | "details" | "schedule";
 
@@ -18,17 +19,29 @@ const Index = () => {
   const [workshopsToDisplay, setWorkshopsToDisplay] = useState<Workshop[]>(allWorkshops.slice(0, 5));
   const [currentView, setCurrentView] = useState<PanelView>("list");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    // Auto-open sheet on mobile when selecting a workshop
+    if (isMobile && selectedWorkshop) {
+      setIsSheetOpen(true);
+    }
+  }, [selectedWorkshop, isMobile]);
 
   const handleSelectWorkshop = (workshop: Workshop) => {
     setSelectedWorkshop(workshop);
     setCurrentView("details");
-    setIsSheetOpen(true);
+    if (isMobile) {
+      setIsSheetOpen(true);
+    }
   };
 
   const handleUpdateWorkshops = (workshops: Workshop[]) => {
     console.log("Recebendo oficinas para exibir:", workshops);
     setWorkshopsToDisplay(workshops.length > 0 ? workshops : allWorkshops.slice(0, 5));
-    setIsSheetOpen(true);
+    if (isMobile) {
+      setIsSheetOpen(true);
+    }
     setCurrentView("list");
   };
 
@@ -90,18 +103,18 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <NavBar />
       
-      <main className="flex-1 container py-6 flex flex-col">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-brand-gray">
+      <main className="flex-1 container mx-auto py-4 px-4 md:py-6 md:px-6 flex flex-col">
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-brand-gray">
             Localize e agende serviços nas melhores oficinas
           </h1>
-          <p className="text-brand-gray mt-2">
+          <p className="text-brand-gray mt-1 md:mt-2 text-sm md:text-base">
             Encontre oficinas próximas, compare preços e agende serviços de forma rápida e fácil.
           </p>
         </div>
 
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-[500px] lg:h-auto relative rounded-xl overflow-hidden shadow-md">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="lg:col-span-2 h-[400px] md:h-[500px] lg:h-auto relative rounded-xl overflow-hidden shadow-md">
             <WorkshopMap
               onSelectWorkshop={handleSelectWorkshop}
               workshops={allWorkshops}
@@ -109,29 +122,31 @@ const Index = () => {
               onUpdateNearestWorkshops={handleUpdateWorkshops}
             />
             
-            <div className="lg:hidden absolute bottom-4 left-4 z-10">
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button 
-                    className="bg-white text-brand-gray shadow-lg hover:bg-gray-100"
-                    size="sm"
-                  >
-                    <MenuIcon className="w-4 h-4 mr-1" />
-                    {workshopsToDisplay.length > 0 
-                      ? `Ver ${workshopsToDisplay.length} Oficinas` 
-                      : "Ver Oficinas"}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-[80%] pt-6 px-0 sm:px-0">
-                  <div className="h-full overflow-y-auto px-4">
-                    {renderPanelContent()}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
+            {isMobile && (
+              <div className="absolute bottom-4 left-4 z-10">
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button 
+                      className="bg-white text-brand-gray shadow-lg hover:bg-gray-100"
+                      size="sm"
+                    >
+                      <MenuIcon className="w-4 h-4 mr-1" />
+                      {workshopsToDisplay.length > 0 
+                        ? `Ver ${workshopsToDisplay.length} Oficinas` 
+                        : "Ver Oficinas"}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[70%] pt-6 px-0 sm:px-0">
+                    <div className="h-full overflow-y-auto px-4">
+                      {renderPanelContent()}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
           </div>
 
-          <div className="hidden lg:block overflow-y-auto max-h-[calc(100vh-300px)] pr-2">
+          <div className="hidden lg:block overflow-y-auto max-h-[calc(100vh-300px)] pr-2 rounded-xl bg-white p-4 shadow-md">
             {renderPanelContent()}
           </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Fix for default markers
 delete L.Icon.Default.prototype._getIconUrl;
@@ -62,6 +64,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
   const [isLocating, setIsLocating] = useState(false);
   const defaultCenter: L.LatLngExpression = [-15.77972, -47.92972];
+  const isMobile = useIsMobile();
 
   const findNearestWorkshops = (location: L.LatLng) => {
     const workshopsWithDistance = workshops.map(workshop => ({
@@ -123,8 +126,9 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           onClick={handleLocateWorkshops}
           className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
           disabled={isLocating}
+          size={isMobile ? "sm" : "default"}
         >
-          <Navigation className="w-4 h-4" />
+          <Navigation className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
           {isLocating ? 'Localizando...' : 'Localizar Oficinas'}
         </Button>
       </div>
@@ -159,12 +163,12 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
             }}
           >
             <Popup>
-              <div className="p-2 max-w-xs">
-                <h3 className="font-semibold mb-2">{workshop.name}</h3>
-                <p className="text-sm text-gray-700 mb-2">{workshop.address}</p>
-                <p className="text-sm text-gray-700 mb-2">{workshop.phone || 'Telefone não disponível'}</p>
+              <div className="p-1 max-w-[200px] xs:max-w-xs sm:p-2">
+                <h3 className="font-semibold text-sm sm:mb-2">{workshop.name}</h3>
+                <p className="text-xs sm:text-sm text-gray-700 mb-1 sm:mb-2">{workshop.address}</p>
+                <p className="text-xs sm:text-sm text-gray-700 mb-1 sm:mb-2">{workshop.phone || 'Telefone não disponível'}</p>
                 {workshop.distance && (
-                  <p className="text-sm text-brand-orange">
+                  <p className="text-xs sm:text-sm text-brand-orange">
                     {workshop.distance.toFixed(1)} km de distância
                   </p>
                 )}
