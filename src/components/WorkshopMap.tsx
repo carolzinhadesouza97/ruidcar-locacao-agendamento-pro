@@ -132,14 +132,15 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       </div>
       
       <MapContainer
+        center={userLocation ? [userLocation.lat, userLocation.lng] : defaultCenter}
         style={{ width: '100%', height: '100%' }}
         className="z-0"
-        zoom={5}
+        defaultZoom={5}
         attributionControl={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
         <MapUpdater 
@@ -150,7 +151,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {userLocation && (
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
-            icon={userLocationIcon}
+            icon={new L.Icon({
+              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowSize: [41, 41]
+            })}
           >
             <Popup>Sua localização</Popup>
           </Marker>
@@ -158,9 +166,16 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
 
         {workshops.map((workshop) => (
           <Marker
-            key={`${workshop.name}-${workshop.lat}-${workshop.lng}`}
+            key={workshop.id}
             position={[workshop.lat, workshop.lng]}
-            icon={workshopIcon}
+            icon={new L.Icon({
+              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowSize: [41, 41]
+            })}
             eventHandlers={{
               click: () => onSelectWorkshop(workshop),
             }}

@@ -3,11 +3,15 @@ import { Workshop } from '@/types/workshops';
 import { northWorkshops } from './north';
 import { southWorkshops } from './south';
 import { southeastWorkshops } from './southeast';
+import { northeastWorkshops } from './northeast';
+import { midwestWorkshops } from './midwest';
 
 export const allWorkshops: Workshop[] = [
   ...northWorkshops,
   ...southWorkshops,
-  ...southeastWorkshops
+  ...southeastWorkshops,
+  ...northeastWorkshops,
+  ...midwestWorkshops
 ];
 
 export const getWorkshopById = (id: string): Workshop | undefined => {
