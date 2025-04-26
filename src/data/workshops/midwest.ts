@@ -1,6 +1,9 @@
-import { Workshop } from '@/types/workshops';
 
-export const midwestWorkshops: Workshop[] = [
+import { Workshop } from '@/types/workshops';
+import { LegacyWorkshopData, convertToStandardWorkshop } from '@/utils/workshopDataConverter';
+
+// Define the data using the legacy format
+const midwestWorkshopsData: LegacyWorkshopData[] = [
   {
     id: "mw1",
     name: "Dias Soluções Automotivas",
@@ -401,3 +404,6 @@ export const midwestWorkshops: Workshop[] = [
     }
   }
 ];
+
+// Convert the data to the standardized Workshop format
+export const midwestWorkshops: Workshop[] = midwestWorkshopsData.map(convertToStandardWorkshop);
