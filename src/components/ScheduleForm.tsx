@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -80,13 +79,13 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
   const getPrice = (carType: string): number => {
     switch (carType) {
       case "popular":
-        return workshop.pricePopular;
+        return workshop.price_popular;
       case "medium":
-        return workshop.priceMedium;
+        return workshop.price_medium;
       case "imported":
-        return workshop.priceImported;
+        return workshop.price_imported;
       default:
-        return workshop.pricePopular;
+        return workshop.price_popular;
     }
   };
 
@@ -231,7 +230,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
                           </span>
                         </FormLabel>
                         <span className="font-semibold text-brand-orange">
-                          R$ {workshop.pricePopular.toFixed(2)}
+                          R$ {workshop.price_popular.toFixed(2)}
                         </span>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
@@ -245,7 +244,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
                           </span>
                         </FormLabel>
                         <span className="font-semibold text-brand-orange">
-                          R$ {workshop.priceMedium.toFixed(2)}
+                          R$ {workshop.price_medium.toFixed(2)}
                         </span>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
@@ -259,7 +258,7 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({ workshop, onScheduleSuccess
                           </span>
                         </FormLabel>
                         <span className="font-semibold text-brand-orange">
-                          R$ {workshop.priceImported.toFixed(2)}
+                          R$ {workshop.price_imported.toFixed(2)}
                         </span>
                       </FormItem>
                     </RadioGroup>

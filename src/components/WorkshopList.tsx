@@ -97,7 +97,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
           </CardContent>
           <CardFooter className="pt-2 flex justify-between items-center">
             <div className="text-sm text-brand-gray">
-              <span className="font-semibold text-brand-orange">R$ {workshop.pricePopular}</span> popular
+              <span className="font-semibold text-brand-orange">R$ {workshop.price_popular}</span> popular
             </div>
             <Button 
               size="sm" 

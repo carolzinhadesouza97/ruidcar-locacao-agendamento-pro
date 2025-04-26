@@ -17,12 +17,15 @@ export interface Workshop {
   phone: string;
   email: string;
   website?: string;
-  pricePopular: number;
-  priceMedium: number;
-  priceImported: number;
+  price_popular: number;
+  price_medium: number;
+  price_imported: number;
   rating: number;
+  open_hours: Record<string, string>;
   openHours: OpenHours;
   distance?: number;
+  permite_agendamento?: boolean | null;
+  valor_diagnostico?: number | null;
 }
 
 export interface Region {

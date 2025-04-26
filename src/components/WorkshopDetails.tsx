@@ -75,19 +75,19 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({ workshop, onBack, onS
               <Card className="bg-muted">
                 <CardContent className="p-3">
                   <p className="font-medium">Carros Populares</p>
-                  <p className="text-lg font-bold text-brand-orange">R$ {workshop.pricePopular.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-brand-orange">R$ {workshop.price_popular.toFixed(2)}</p>
                 </CardContent>
               </Card>
               <Card className="bg-muted">
                 <CardContent className="p-3">
                   <p className="font-medium">Carros Médios</p>
-                  <p className="text-lg font-bold text-brand-orange">R$ {workshop.priceMedium.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-brand-orange">R$ {workshop.price_medium.toFixed(2)}</p>
                 </CardContent>
               </Card>
               <Card className="bg-muted">
                 <CardContent className="p-3">
                   <p className="font-medium">Importados</p>
-                  <p className="text-lg font-bold text-brand-orange">R$ {workshop.priceImported.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-brand-orange">R$ {workshop.price_imported.toFixed(2)}</p>
                 </CardContent>
               </Card>
             </div>
