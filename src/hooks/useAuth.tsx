@@ -1,18 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import type { Session, User } from '@supabase/supabase-js'; // Import Session and User types
+import type { Session, User } from '@supabase/supabase-js';
 
-// Use the environment variable for the BASE_URL
 const BASE_URL = import.meta.env.VITE_APP_URL;
 
-// Validate that the BASE_URL environment variable is set
 if (!BASE_URL) {
   console.warn("Missing environment variable: VITE_APP_URL. Using current origin as fallback for redirects.");
-  // Optionally, you could throw an error or use window.location.origin as a last resort
-  // throw new Error("Missing environment variable: VITE_APP_URL");
 }
 
 export type UserRole = 'admin' | 'oficina' | 'user';
@@ -26,12 +21,11 @@ export interface UserProfile {
 
 export const useAuth = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null); // Use Session type
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         setSession(currentSession);
@@ -43,13 +37,11 @@ export const useAuth = () => {
         } : null);
         setLoading(false);
         
-        // Handle specific auth events
         if (event === 'SIGNED_IN') {
           toast.success('Login realizado com sucesso!');
         } else if (event === 'SIGNED_OUT') {
           toast.info('Você saiu da sua conta');
         } else if (event === 'PASSWORD_RECOVERY') {
-          // Navigate only if not already on the reset page to avoid loops
           if (window.location.pathname !== '/reset-password') {
              navigate('/reset-password');
           }
@@ -59,7 +51,6 @@ export const useAuth = () => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ? {
@@ -89,13 +80,10 @@ export const useAuth = () => {
       });
       
       if (error) throw error;
-      // Redirect handled by Supabase OAuth
       
     } catch (error: any) {
       console.error('Erro ao fazer login com Google:', error);
       toast.error(error.message || 'Erro ao fazer login com Google');
-      // Re-throw the error if needed for upstream handling
-      // throw error;
     }
   };
 
@@ -118,7 +106,7 @@ export const useAuth = () => {
           : error.message || 'Erro ao fazer login';
           
       toast.error(errorMessage);
-      throw error; // Re-throw to allow calling component to handle failed login
+      throw error;
     }
   };
 
@@ -129,14 +117,17 @@ export const useAuth = () => {
         password,
         options: {
           data: userData,
-          emailRedirectTo: `${BASE_URL}/verify`
         }
       });
       
       if (error) throw error;
       
-      toast.success('Cadastro realizado! Verifique seu email para continuar.');
-      return data.user;
+      if (data.user) {
+        toast.success('Cadastro realizado com sucesso!');
+        return data.user;
+      }
+      
+      return null;
       
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
@@ -144,15 +135,10 @@ export const useAuth = () => {
       let errorMessage = 'Erro ao cadastrar';
       if (error.message.includes('already registered')) {
         errorMessage = 'Este email já está cadastrado. Tente fazer login.';
-      } else if (error.message.includes('check your email')) {
-        // Handle Supabase email verification requirement message gracefully
-        errorMessage = 'Verifique seu email para confirmar o cadastro.';
-        toast.info(errorMessage); // Use info instead of error for this case
-        return null; // Return null as user is not fully signed up yet
       }
       
       toast.error(errorMessage);
-      throw error; // Re-throw for other errors
+      throw error;
     }
   };
 
@@ -170,7 +156,7 @@ export const useAuth = () => {
     } catch (error: any) {
       console.error('Erro ao solicitar recuperação de senha:', error);
       toast.error(error.message || 'Erro ao solicitar recuperação de senha');
-      return false; // Indicate failure
+      return false;
     }
   };
 
@@ -178,8 +164,8 @@ export const useAuth = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      setUser(null); // Clear user state immediately
-      setSession(null); // Clear session state immediately
+      setUser(null);
+      setSession(null);
       navigate('/');
     } catch (error: any) {
       console.error('Erro ao sair:', error);
@@ -198,4 +184,3 @@ export const useAuth = () => {
     signOut,
   };
 };
-
