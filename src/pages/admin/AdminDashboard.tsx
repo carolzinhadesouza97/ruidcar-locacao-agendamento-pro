@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { getMockDashboardData } from '@/data/adminDashboard';
 import { GrowthChart } from '@/components/admin/GrowthChart';
@@ -21,8 +22,20 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const dashboardData = getMockDashboardData();
-        setData(dashboardData);
+        // Pass "30" as the default period parameter
+        const dashboardData = getMockDashboardData("30");
+        
+        // Transform the dashboard data to match our state structure
+        const transformedData = {
+          totalRevenue: dashboardData.totalRevenue,
+          revenueGrowth: dashboardData.revenueTrend || 0,
+          totalWorkshops: dashboardData.totalWorkshops,
+          totalUsers: dashboardData.totalUsers,
+          growthOverTime: dashboardData.growthOverTime,
+          revenueByRegion: dashboardData.revenueByRegion,
+        };
+        
+        setData(transformedData);
       } catch (err) {
         setError('Failed to load dashboard data.');
         console.error(err);
