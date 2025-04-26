@@ -1,16 +1,13 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Workshop } from '@/types/workshops';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { findNearestWorkshops } from '@/utils/distance';
 import MapControls from './map/MapControls';
 import MapUpdater from './map/MapUpdater';
 import WorkshopPopup from './map/WorkshopPopup';
-import { userLocationIcon, workshopIcon } from './map/MapIcons';
+import { useMapbox } from '@/hooks/map/useMapbox';
 
 interface WorkshopMapProps {
   onSelectWorkshop: (workshop: Workshop) => void;
@@ -22,61 +19,30 @@ interface WorkshopMapProps {
 const WorkshopMap: React.FC<WorkshopMapProps> = ({
   onSelectWorkshop,
   workshops,
-  onUpdateNearestWorkshops
+  onUpdateNearestWorkshops,
 }) => {
-  const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
-  const [displayedWorkshops, setDisplayedWorkshops] = useState<Workshop[]>(workshops);
+  const {
+    userLocation,
+    nearestWorkshops,
+    isLocating,
+    handleLocateWorkshops,
+    viewport
+  } = useMapbox();
+  
   const [showAllWorkshops, setShowAllWorkshops] = useState(true);
-  const [isLocating, setIsLocating] = useState(false);
+  const [displayedWorkshops, setDisplayedWorkshops] = useState<Workshop[]>(workshops);
   const defaultCenter: L.LatLngExpression = [-15.77972, -47.92972];
   const isMobile = useIsMobile();
 
-  const handleLocateWorkshops = () => {
-    setIsLocating(true);
-    
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLoc = L.latLng(position.coords.latitude, position.coords.longitude);
-          setUserLocation(userLoc);
-          
-          const nearest = findNearestWorkshops(workshops, userLoc.lat, userLoc.lng, 5);
-          
-          if (onUpdateNearestWorkshops) {
-            onUpdateNearestWorkshops(nearest);
-          }
-          
-          setDisplayedWorkshops(nearest);
-          setShowAllWorkshops(false);
-          
-          setIsLocating(false);
-          toast.success('Oficinas próximas encontradas!');
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          toast.error('Não foi possível obter sua localização');
-          setIsLocating(false);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0
-        }
-      );
-    } else {
-      toast.error('Geolocalização não suportada pelo seu navegador');
-      setIsLocating(false);
-    }
+  const handleLocateClick = () => {
+    handleLocateWorkshops(workshops);
   };
 
   const toggleWorkshopsDisplay = () => {
     if (showAllWorkshops) {
-      if (userLocation) {
-        const nearest = findNearestWorkshops(workshops, userLocation.lat, userLocation.lng, 5);
-        setDisplayedWorkshops(nearest);
-        if (onUpdateNearestWorkshops) {
-          onUpdateNearestWorkshops(nearest);
-        }
+      setDisplayedWorkshops(nearestWorkshops);
+      if (onUpdateNearestWorkshops) {
+        onUpdateNearestWorkshops(nearestWorkshops);
       }
     } else {
       setDisplayedWorkshops(workshops);
@@ -87,10 +53,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     setShowAllWorkshops(!showAllWorkshops);
   };
 
-  useEffect(() => {
-    setDisplayedWorkshops(workshops);
-  }, [workshops]);
-
   return (
     <div className="h-full w-full relative">
       <MapControls 
@@ -98,7 +60,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         showAllWorkshops={showAllWorkshops}
         isLocating={isLocating}
         onToggleDisplay={toggleWorkshopsDisplay}
-        onLocate={handleLocateWorkshops}
+        onLocate={handleLocateClick}
         isMobile={isMobile}
       />
       

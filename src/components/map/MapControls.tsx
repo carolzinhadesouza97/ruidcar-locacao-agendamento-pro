@@ -2,9 +2,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
+import { LatLng } from 'leaflet';
 
 interface MapControlsProps {
-  userLocation: L.LatLng | null;
+  userLocation: LatLng | null;
   showAllWorkshops: boolean;
   isLocating: boolean;
   onToggleDisplay: () => void;

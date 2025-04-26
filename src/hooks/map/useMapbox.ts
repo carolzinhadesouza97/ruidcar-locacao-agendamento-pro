@@ -1,17 +1,12 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { OficinaRUIDCAR } from '@/data/oficinasRUIDCAR';
+import { Workshop } from '@/types/workshops';
 import { calculateHaversineDistance } from '@/utils/distance';
-import { Workshop } from '@/data/workshops';
-
-export interface OficinaWithDistance extends OficinaRUIDCAR {
-  distance: number;
-}
 
 // Modifying this interface to match the Workshop type where distance is optional and is a number
 export interface WorkshopWithDistance extends Workshop {
-  distance: number; // Changed from string to number to match Workshop type
+  distance: number;
 }
 
 // Define a proper viewport type that includes transitionDuration
@@ -19,7 +14,7 @@ export interface MapViewport {
   latitude: number;
   longitude: number;
   zoom: number;
-  transitionDuration?: number; // Make this optional
+  transitionDuration?: number;
 }
 
 // Coordenadas padrão para o Brasil (centro aproximado)
@@ -31,14 +26,12 @@ const BRAZIL_CENTER: MapViewport = {
 
 export const useMapbox = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [nearestOficinas, setNearestOficinas] = useState<OficinaWithDistance[]>([]);
   const [isLocating, setIsLocating] = useState(false);
   const [viewport, setViewport] = useState<MapViewport>(BRAZIL_CENTER);
   const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
 
   // Inicializa o mapa garantindo que os valores iniciais estão corretos
   useEffect(() => {
-    // Verifica se já temos localização do usuário
     if (!userLocation) {
       setViewport(BRAZIL_CENTER);
     }
@@ -53,7 +46,7 @@ export const useMapbox = () => {
     return userLoc;
   }, []);
 
-  const handleLocateOficinas = useCallback((oficinas: OficinaRUIDCAR[], workshops: Workshop[]) => {
+  const handleLocateWorkshops = useCallback((workshops: Workshop[]) => {
     setIsLocating(true);
     console.log("Iniciando localização de oficinas...");
     
@@ -66,24 +59,7 @@ export const useMapbox = () => {
           return;
         }
         
-        // Process oficinas
-        const oficinasWithDistance: OficinaWithDistance[] = oficinas.map(oficina => ({
-          ...oficina,
-          distance: calculateHaversineDistance(
-            userLoc.lat, 
-            userLoc.lng, 
-            oficina.lat, 
-            oficina.lng
-          )
-        }));
-
-        const nearest = oficinasWithDistance
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 5);
-
-        setNearestOficinas(nearest);
-        
-        // Process workshops and create a parallel list with distances
+        // Process workshops and create a list with distances
         const workshopsWithDistance: Workshop[] = workshops.map(workshop => {
           const distance = calculateHaversineDistance(
             userLoc.lat,
@@ -94,25 +70,24 @@ export const useMapbox = () => {
           
           return {
             ...workshop,
-            distance: distance // Keep as number, don't convert to string
+            distance: distance
           };
         });
         
         // Get 5 nearest workshops
-        const nearestShops = workshopsWithDistance
+        const nearest = workshopsWithDistance
           .sort((a, b) => (a.distance || 0) - (b.distance || 0))
           .slice(0, 5);
         
-        console.log("Oficinas mais próximas encontradas:", nearestShops);  
-        setNearestWorkshops(nearestShops);
+        console.log("Oficinas mais próximas encontradas:", nearest);  
+        setNearestWorkshops(nearest);
         
-        if (nearest.length > 0 || nearestShops.length > 0) {
-          // Update viewport to show user and nearest locations
+        if (nearest.length > 0) {
           setViewport({
             latitude: userLoc.lat,
             longitude: userLoc.lng,
             zoom: 12,
-            transitionDuration: 1000 // Add transition duration here
+            transitionDuration: 1000
           });
         }
 
@@ -134,10 +109,9 @@ export const useMapbox = () => {
 
   return {
     userLocation,
-    nearestOficinas,
     nearestWorkshops,
     isLocating,
-    handleLocateOficinas,
+    handleLocateWorkshops,
     viewport,
     setViewport
   };
