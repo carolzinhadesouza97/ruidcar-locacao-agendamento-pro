@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
@@ -146,7 +145,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {userLocation && (
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
-            icon={userLocationIcon}
           >
             <Popup>Sua localização</Popup>
           </Marker>
@@ -156,7 +154,6 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           <Marker
             key={workshop.id}
             position={[workshop.lat, workshop.lng]}
-            icon={workshopIcon}
             eventHandlers={{
               click: () => onSelectWorkshop(workshop),
             }}
