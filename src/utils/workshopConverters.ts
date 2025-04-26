@@ -33,7 +33,7 @@ export function convertToStandardWorkshop(data: LegacyWorkshopData): ConvertedWo
   };
 }
 
-// Add the missing convertDTOToWorkshop function
+// Export the convertDTOToWorkshop function
 export function convertDTOToWorkshop(dto: any): Workshop {
   return {
     id: dto.id || '',
@@ -50,7 +50,6 @@ export function convertDTOToWorkshop(dto: any): Workshop {
     price_popular: dto.price_popular || 0,
     price_medium: dto.price_medium || 0,
     price_imported: dto.price_imported || 0,
-    rating: dto.rating || 0,
     open_hours: dto.open_hours || {},
     openHours: {
       weekdays: dto.open_hours?.weekdays || '8:00 - 18:00',
