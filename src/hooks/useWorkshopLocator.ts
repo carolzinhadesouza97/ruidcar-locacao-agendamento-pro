@@ -1,7 +1,15 @@
+
 import { useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { calculateHaversineDistance } from '@/utils/distance';
 import { toast } from 'sonner';
+
+// Declare the google namespace to avoid TypeScript errors
+declare global {
+  interface Window {
+    google: typeof google;
+  }
+}
 
 interface Location {
   lat: number;
@@ -63,7 +71,7 @@ export const useWorkshopLocator = () => {
         const nearest = findNearestWorkshops(workshops, location);
         setNearestWorkshops(nearest);
 
-        if (map) {
+        if (map && window.google) {
           const bounds = new google.maps.LatLngBounds();
           
           bounds.extend(new google.maps.LatLng(location.lat, location.lng));
@@ -74,7 +82,7 @@ export const useWorkshopLocator = () => {
           
           map.fitBounds(bounds);
           
-          const listener = google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+          google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
             if (map.getZoom() > 15) map.setZoom(15);
           });
         }

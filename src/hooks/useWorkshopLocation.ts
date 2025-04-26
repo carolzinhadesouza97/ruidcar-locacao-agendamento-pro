@@ -3,6 +3,13 @@ import { useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { toast } from 'sonner';
 
+// Declare the google namespace to avoid TypeScript errors
+declare global {
+  interface Window {
+    google: typeof google;
+  }
+}
+
 export const useWorkshopLocation = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
