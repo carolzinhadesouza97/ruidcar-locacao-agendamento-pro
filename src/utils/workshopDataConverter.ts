@@ -50,7 +50,7 @@ export function convertToStandardWorkshop(data: LegacyWorkshopData): Workshop {
     distance: data.distance,
     permite_agendamento: false, // Default
     valor_diagnostico: null, // Default
-    created_at: new Date().toISOString(), // Add default created_at timestamp
-    approved: true // Add default approved status
+    created_at: new Date().toISOString(), // Ensure this is always set
+    approved: true // Ensure this is always set
   };
 }

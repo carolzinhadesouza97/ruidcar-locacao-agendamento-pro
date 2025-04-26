@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -8,7 +7,6 @@ import WorkshopDetails from "@/components/WorkshopDetails";
 import ScheduleForm from "@/components/ScheduleForm";
 import { allWorkshops } from "@/data/workshops";
 import { Workshop } from "@/types/workshops";
-import { convertToUIWorkshop } from "@/utils/workshopConverters";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
@@ -24,7 +22,6 @@ const Index = () => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Auto-open sheet on mobile when selecting a workshop
     if (isMobile && selectedWorkshop) {
       setIsSheetOpen(true);
     }

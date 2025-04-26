@@ -26,8 +26,8 @@ export interface Workshop {
   distance?: number;
   permite_agendamento?: boolean | null;
   valor_diagnostico?: number | null;
-  created_at?: string | null; // Add created_at property
-  approved?: boolean | null; // Add approved property
+  created_at: string | null; // Changed from optional to required to match other Workshop type
+  approved: boolean | null; // Changed from optional to required to match other Workshop type
 }
 
 export interface Region {
