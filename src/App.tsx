@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import Unauthorized from "./pages/Unauthorized";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import RoleProtectedRoute from "./components/auth/RoleProtectedRoute";
 
@@ -40,6 +41,11 @@ const App = () => (
               <PrivateRoute>
                 <Dashboard />
               </PrivateRoute>
+            } />
+            <Route path="/admin" element={
+              <RoleProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </RoleProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
