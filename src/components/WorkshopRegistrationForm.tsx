@@ -26,14 +26,24 @@ const WorkshopRegistrationForm = () => {
       priceMedium: '',
       priceImported: '',
     },
+    mode: 'onChange',
   });
+
+  const onSubmit = async (data: WorkshopFormInput) => {
+    console.log('Form submitted with data:', data);
+    await handleRegistration(data);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleRegistration)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <WorkshopFormSections form={form} />
         
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isSubmitting}
+        >
           {isSubmitting ? 'Cadastrando...' : 'Cadastrar Oficina'}
         </Button>
       </form>

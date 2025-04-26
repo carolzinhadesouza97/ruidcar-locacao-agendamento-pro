@@ -16,6 +16,7 @@ export const useWorkshopRegistration = () => {
   const handleRegistration = async (data: WorkshopFormInput) => {
     try {
       setIsSubmitting(true);
+      console.log("Iniciando registro de oficina com dados:", data);
       
       if (!isLoaded) {
         toast.error("O serviço de geocodificação não está disponível. Tente novamente em alguns instantes.");
@@ -48,12 +49,14 @@ export const useWorkshopRegistration = () => {
           // Aviso de que estamos usando localização aproximada
           toast.warning('Usando localização aproximada baseada na cidade. Para melhor precisão, selecione um endereço da lista de sugestões.');
         } catch (secondError) {
+          console.error("Erro também na geocodificação simplificada:", secondError);
           toast.error(`Erro ao localizar endereço: ${geocodeError.message || 'Verifique se o endereço está correto'}`);
           setIsSubmitting(false);
           return;
         }
       }
       
+      console.log("Criando usuário com email:", data.email);
       // Se chegou aqui, a geocodificação foi bem-sucedida, então prossiga com o cadastro
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
@@ -61,14 +64,18 @@ export const useWorkshopRegistration = () => {
       });
 
       if (authError) {
+        console.error("Erro na criação do usuário:", authError);
         throw authError;
       }
+
+      console.log("Usuário criado com sucesso. ID:", authData.user?.id);
 
       // Parse string values to numbers for price fields
       const pricePopular = parseFloat(data.pricePopular.replace(',', '.'));
       const priceMedium = parseFloat(data.priceMedium.replace(',', '.'));
       const priceImported = parseFloat(data.priceImported.replace(',', '.'));
 
+      console.log("Inserindo dados da oficina na tabela workshops");
       const { data: workshopData, error: workshopError } = await supabase
         .from('workshops')
         .insert({
@@ -94,8 +101,12 @@ export const useWorkshopRegistration = () => {
         .single();
 
       if (workshopError) {
+        console.error("Erro ao inserir oficina:", workshopError);
         throw workshopError;
       }
+
+      console.log("Oficina inserida com sucesso. ID:", workshopData.id);
+      console.log("Vinculando oficina ao usuário");
 
       const { error: linkError } = await supabase
         .from('workshop_accounts')
@@ -107,9 +118,11 @@ export const useWorkshopRegistration = () => {
         });
 
       if (linkError) {
+        console.error("Erro ao vincular oficina ao usuário:", linkError);
         throw linkError;
       }
 
+      console.log("Cadastro concluído com sucesso");
       toast.success('Oficina cadastrada com sucesso! Aguarde a aprovação.');
       navigate('/');
     } catch (error: any) {
