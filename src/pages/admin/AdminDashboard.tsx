@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Building, Sparkles, Users, DollarSign } from 'lucide-react';
 import { getMockDashboardData } from '@/data/adminDashboard';
 import AdminDashboardHeader from '@/components/admin/AdminDashboardHeader';
-import MetricCard from '@/components/admin/MetricCard';
+import AdminMetrics from '@/components/admin/AdminMetrics';
 import GrowthChart from '@/components/admin/GrowthChart';
 import RegionRevenueChart from '@/components/admin/RegionRevenueChart';
 import SpecialtyDistributionChart from '@/components/admin/SpecialtyDistributionChart';
@@ -103,6 +104,20 @@ const AdminDashboard = () => {
     return 0;
   });
 
+  // Map data for GrowthChart component
+  const mappedGrowthData = dashboardData.growthOverTime.map(item => ({
+    date: item.date,
+    oficinas: item.workshops,
+    usuarios: item.users,
+    agendamentos: item.workshops + Math.floor(Math.random() * 20) // Adding agendamentos as it's missing in the original data
+  }));
+
+  // Map data for RegionRevenueChart component
+  const mappedRegionData = dashboardData.revenueByRegion.map(item => ({
+    name: item.region,
+    valor: item.revenue
+  }));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -120,44 +135,20 @@ const AdminDashboard = () => {
       />
       
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <MetricCard 
-          title="Total de Oficinas"
-          value={dashboardData.totalWorkshops}
-          icon={<Building />}
-          trend={dashboardData.workshopsTrend}
-          description={`${dashboardData.pendingWorkshops.length} pendentes de aprovação`}
-        />
-        <MetricCard 
-          title="Novos Cadastros"
-          value={dashboardData.newWorkshops}
-          icon={<Sparkles />}
-          trend={dashboardData.newWorkshopsTrend}
-          description={`no período de ${period} dias`}
-        />
-        <MetricCard 
-          title="Total de Usuários"
-          value={dashboardData.totalUsers}
-          icon={<Users />}
-          trend={dashboardData.usersTrend}
-        />
-        <MetricCard 
-          title="Faturamento Global"
-          value={`R$ ${dashboardData.totalRevenue.toLocaleString('pt-BR')}`}
-          icon={<DollarSign />}
-          trend={dashboardData.revenueTrend}
-          description={`média de R$ ${(dashboardData.totalRevenue / dashboardData.totalWorkshops).toFixed(2)} por oficina`}
-        />
-      </div>
+      <AdminMetrics
+        totalWorkshops={dashboardData.totalWorkshops}
+        newRegistrations={dashboardData.newWorkshops}
+        totalUsers={dashboardData.totalUsers}
+        totalRevenue={dashboardData.totalRevenue}
+      />
       
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <GrowthChart 
-          data={dashboardData.growthOverTime}
-          period={period}
+          data={mappedGrowthData}
         />
         <RegionRevenueChart 
-          data={dashboardData.revenueByRegion}
+          data={mappedRegionData}
         />
       </div>
       
