@@ -136,7 +136,10 @@ const Index = () => {
                         : "Ver Oficinas"}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="bottom" className="h-[70%] pt-6 px-0 sm:px-0">
+                  <SheetContent 
+                    side="bottom" 
+                    className="h-[70vh] max-h-[700px] pt-6 px-0 sm:px-0 rounded-t-xl overflow-hidden"
+                  >
                     <div className="h-full overflow-y-auto px-4">
                       {renderPanelContent()}
                     </div>
