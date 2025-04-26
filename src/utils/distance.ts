@@ -1,4 +1,3 @@
-
 export const toRad = (value: number): number => (value * Math.PI) / 180;
 
 export const calculateHaversineDistance = (
@@ -19,4 +18,15 @@ export const calculateHaversineDistance = (
   
   // Return distance with 2 decimal places
   return Number(distance.toFixed(2));
+};
+
+export const findNearestWorkshops = (workshops: Workshop[], userLat: number, userLng: number, limit?: number): Workshop[] => {
+  const workshopsWithDistance = workshops.map(workshop => ({
+    ...workshop,
+    distance: calculateHaversineDistance(userLat, userLng, workshop.lat, workshop.lng)
+  }));
+  
+  return workshopsWithDistance
+    .sort((a, b) => (a.distance || 0) - (b.distance || 0))
+    .slice(0, limit || workshopsWithDistance.length);
 };

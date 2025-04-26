@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { findNearestWorkshops } from '@/utils/distance';
 
 // Fix for default markers
 delete L.Icon.Default.prototype._getIconUrl;
@@ -61,22 +61,11 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   onUpdateNearestWorkshops
 }) => {
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
-  const [nearestWorkshops, setNearestWorkshops] = useState<Workshop[]>([]);
+  const [displayedWorkshops, setDisplayedWorkshops] = useState<Workshop[]>(workshops);
+  const [showAllWorkshops, setShowAllWorkshops] = useState(true);
   const [isLocating, setIsLocating] = useState(false);
   const defaultCenter: L.LatLngExpression = [-15.77972, -47.92972];
   const isMobile = useIsMobile();
-
-  const findNearestWorkshops = (location: L.LatLng) => {
-    const workshopsWithDistance = workshops.map(workshop => ({
-      ...workshop,
-      distance: L.latLng(workshop.lat, workshop.lng).distanceTo(location) / 1000
-    }));
-
-    return workshopsWithDistance
-      .filter(w => w.distance <= 100) // Filter workshops within 100km
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 5);
-  };
 
   const handleLocateWorkshops = () => {
     setIsLocating(true);
@@ -87,12 +76,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
           const userLoc = L.latLng(position.coords.latitude, position.coords.longitude);
           setUserLocation(userLoc);
           
-          const nearest = findNearestWorkshops(userLoc);
-          setNearestWorkshops(nearest);
+          const nearest = findNearestWorkshops(workshops, userLoc.lat, userLoc.lng, 5);
           
           if (onUpdateNearestWorkshops) {
             onUpdateNearestWorkshops(nearest);
           }
+          
+          setDisplayedWorkshops(nearest);
+          setShowAllWorkshops(false);
           
           setIsLocating(false);
           toast.success('Oficinas próximas encontradas!');
@@ -114,14 +105,40 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     }
   };
 
-  // Auto-locate on component mount
+  const toggleWorkshopsDisplay = () => {
+    if (showAllWorkshops) {
+      if (userLocation) {
+        const nearest = findNearestWorkshops(workshops, userLocation.lat, userLocation.lng, 5);
+        setDisplayedWorkshops(nearest);
+        if (onUpdateNearestWorkshops) {
+          onUpdateNearestWorkshops(nearest);
+        }
+      }
+    } else {
+      setDisplayedWorkshops(workshops);
+      if (onUpdateNearestWorkshops) {
+        onUpdateNearestWorkshops(workshops);
+      }
+    }
+    setShowAllWorkshops(!showAllWorkshops);
+  };
+
   useEffect(() => {
-    handleLocateWorkshops();
-  }, []);
+    setDisplayedWorkshops(workshops);
+  }, [workshops]);
 
   return (
     <div className="h-full w-full relative">
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        {userLocation && (
+          <Button 
+            onClick={toggleWorkshopsDisplay}
+            className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
+            size={isMobile ? "sm" : "default"}
+          >
+            {showAllWorkshops ? 'Mostrar 5 Mais Próximas' : 'Mostrar Todas'}
+          </Button>
+        )}
         <Button 
           onClick={handleLocateWorkshops}
           className="bg-brand-orange hover:bg-opacity-90 text-white flex items-center gap-2 shadow-lg"
@@ -149,15 +166,17 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {userLocation && (
           <Marker 
             position={[userLocation.lat, userLocation.lng]}
+            icon={userLocationIcon}
           >
             <Popup>Sua localização</Popup>
           </Marker>
         )}
 
-        {workshops.map((workshop) => (
+        {displayedWorkshops.map((workshop) => (
           <Marker
             key={workshop.id}
             position={[workshop.lat, workshop.lng]}
+            icon={workshopIcon}
             eventHandlers={{
               click: () => onSelectWorkshop(workshop),
             }}
