@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Workshop } from '@/data/workshops';
 import { Button } from '@/components/ui/button';
 import { Navigation } from 'lucide-react';
@@ -56,6 +56,8 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
     isLocating,
     handleLocateOficinas
   } = useMapbox();
+  
+  const [selectedOficina, setSelectedOficina] = useState<OficinaWithDistance | null>(null);
 
   // Update parent component with nearest workshops when they change
   useEffect(() => {
@@ -70,6 +72,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   const center = userLocation 
     ? [userLocation.lat, userLocation.lng] as [number, number]
     : defaultCenter;
+
+  const handleMarkerClick = (oficina: OficinaWithDistance) => {
+    setSelectedOficina(oficina);
+  };
+
+  const handleClosePopup = () => {
+    setSelectedOficina(null);
+  };
 
   return (
     <div className="h-full w-full relative">
@@ -87,14 +97,14 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       <MapContainer
         style={{ width: '100%', height: '100%' }}
         className="z-0"
-        /* @ts-ignore */
+        // @ts-ignore
         center={defaultCenter}
-        /* @ts-ignore */
+        // @ts-ignore
         zoom={5}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          /* @ts-ignore */
+          // @ts-ignore
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
@@ -102,7 +112,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
 
         {userLocation && (
           <Marker 
-            /* @ts-ignore */
+            // @ts-ignore
             position={[userLocation.lat, userLocation.lng]}
           >
             <Popup>Sua localização</Popup>
@@ -112,21 +122,26 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
         {nearestOficinas.map((oficina) => (
           <Marker
             key={`${oficina.nome}-${oficina.lat}-${oficina.lng}`}
-            /* @ts-ignore */
+            // @ts-ignore
             position={[oficina.lat, oficina.lng]}
-            /* @ts-ignore */
+            // @ts-ignore
             icon={workshopIcon}
+            eventHandlers={{
+              click: () => handleMarkerClick(oficina),
+            }}
           >
-            <Popup>
-              <div className="p-2 max-w-xs">
-                <h3 className="font-semibold mb-2">{oficina.nome}</h3>
-                <p className="text-sm text-gray-700 mb-2">{oficina.endereco}</p>
-                <p className="text-sm text-gray-700 mb-2">{oficina.telefone || 'Telefone não disponível'}</p>
-                <p className="text-sm text-brand-orange">
-                  {oficina.distance.toFixed(1)} km de distância
-                </p>
-              </div>
-            </Popup>
+            {selectedOficina && selectedOficina === oficina && (
+              <Popup onClose={handleClosePopup}>
+                <div className="p-2 max-w-xs">
+                  <h3 className="font-semibold mb-2">{oficina.nome}</h3>
+                  <p className="text-sm text-gray-700 mb-2">{oficina.endereco}</p>
+                  <p className="text-sm text-gray-700 mb-2">{oficina.telefone || 'Telefone não disponível'}</p>
+                  <p className="text-sm text-brand-orange">
+                    {oficina.distance.toFixed(1)} km de distância
+                  </p>
+                </div>
+              </Popup>
+            )}
           </Marker>
         ))}
       </MapContainer>
