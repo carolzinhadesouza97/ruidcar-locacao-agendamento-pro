@@ -9,6 +9,7 @@ interface IconMarkerProps {
   icon?: L.Icon;
   children?: React.ReactNode;
   eventHandlers?: any;
+  key?: string | number;
 }
 
 // Componente de marcador personalizado que lida corretamente com o ícone
@@ -22,6 +23,7 @@ const IconMarker: React.FC<IconMarkerProps> = ({
   return (
     <Marker 
       position={position}
+      icon={icon}
       eventHandlers={eventHandlers}
       {...props}
     >
