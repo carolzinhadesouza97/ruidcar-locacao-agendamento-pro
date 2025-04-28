@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { Workshop } from '@/types/workshops';
-import { MapContainer, TileLayer, Popup } from 'react-leaflet';
-import L from 'leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useIsMobile } from '@/hooks/use-mobile';
 import MapControls from './map/MapControls';
@@ -33,7 +33,7 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
   
   const [showAllWorkshops, setShowAllWorkshops] = useState(true);
   const [displayedWorkshops, setDisplayedWorkshops] = useState<Workshop[]>(workshops);
-  const defaultCenter: L.LatLngExpression = [-15.77972, -47.92972];
+  const defaultCenter: [number, number] = [-15.77972, -47.92972];
   const isMobile = useIsMobile();
 
   const handleLocateClick = () => {
@@ -69,9 +69,12 @@ const WorkshopMap: React.FC<WorkshopMapProps> = ({
       <MapContainer
         style={{ width: '100%', height: '100%' }}
         className="z-0"
+        center={defaultCenter}
+        zoom={5}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
         <MapUpdater 
